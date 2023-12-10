@@ -1,0 +1,184 @@
+﻿using Vertical.CommandLine.Utilities;
+
+namespace Vertical.CommandLine.Syntax;
+
+/// <summary>
+/// Parses input sequences into a <see cref="SemanticArgument"/> collection.
+/// </summary>
+public sealed class SemanticArgumentParser
+{
+    private enum QueuePosition { First, Last, Single, Middle }
+    private record QueueValue(
+        TokenizedInputSequence Value, 
+        QueuePosition Position,
+        SemanticAnatomy Anatomy);
+    
+    private readonly List<SemanticArgument> _list = new(32);
+    
+    public static SemanticArgument[] Parse(TokenizedInputSequence[] arguments)
+    {
+        var instance = new SemanticArgumentParser();
+
+        return instance.ParseInternal(arguments);
+    }
+
+    private SemanticArgument[] ParseInternal(TokenizedInputSequence[] arguments)
+    {
+        var queue = new Queue<TokenizedInputSequence>(arguments);
+        var iteration = 0;
+
+        while (queue.TryDequeue(out var sequence))
+        {
+            var position = (args: arguments.Length, iteration, remaining: queue.Count) switch
+            {
+                { args: 1 } => QueuePosition.Single,
+                { iteration: 0 } => QueuePosition.First,
+                { remaining: 0 } => QueuePosition.Last,
+                _ => QueuePosition.Middle
+            };
+
+            iteration++;
+                
+            var value = new QueueValue(
+                sequence, 
+                position,
+                SemanticAnatomy.Create(sequence));
+            
+            if (TryParseTerminatingSequence(sequence))
+                break;
+
+            if (TryParsePrefixedSequence(value))
+                continue;
+
+            ParseArgumentSequence(sequence);
+        }
+        
+        foreach (var sequence in queue)
+        {
+            ParseTerminatedArgument(sequence);
+        }
+
+        return _list.ToArray();
+    }
+
+    private void ParseArgumentSequence(TokenizedInputSequence sequence)
+    {
+        var last = _list.LastOrDefault();
+        var precedesOption = last?.IsOption == true;
+        var precedesArgOrNothing = last?.IsDiscreetArgument == true || last == null;
+        var semanticHint = (precedesOption, precedesArgOrNothing) switch
+        {
+            { precedesOption: true } => SemanticHint.SpeculativeOperand,
+            { precedesArgOrNothing: true } => SemanticHint.DiscreetArgument,
+            _ => SemanticHint.None
+        };
+
+        _list.Add(new SemanticArgument(Ordinal, sequence, semanticHint));
+    }
+
+    private bool TryParsePrefixedSequence(QueueValue queueValue)
+    {
+        var sequence = queueValue.Value;
+        
+        // Sequences with one character are never options
+        if (sequence.Length == 1)
+            return false;
+
+        var prefixedSequence = SemanticAnatomy.Create(sequence);
+        var format = queueValue.Anatomy.PrefixFormat;
+
+        if (format == IdentifierFormat.None)
+            return false;
+
+        return format switch
+        {
+            IdentifierFormat.Posix => ParsePosixPrefixFormatSequence(queueValue),
+            IdentifierFormat.Gnu => ParseGnuPrefixFormatSequence(queueValue),
+            _ => ParseMicrosoftPrefixFormatSequence(queueValue)
+        };
+    }
+
+    private bool ParsePosixPrefixFormatSequence(QueueValue value)
+    {
+        var anatomy = value.Anatomy;
+        
+        // Validate format
+        var valid = !anatomy.IdentifierSpan.Scan(false, (state, token) => 
+            state || !char.IsLetterOrDigit(token.Value));
+
+        if (!valid) return false;
+
+        if (anatomy.IdentifierSpan.Length == 1)
+        {
+             
+            // Simple single character option
+            _list.Add(new SemanticArgument(Ordinal, value.Value, anatomy));
+            return true;
+        }
+        
+        // Multi character group, split off switches
+        anatomy.IdentifierSpan[..^1].Scan(token =>
+        {
+            AddPosixArgument($"-{token.Value}", SemanticHint.KnownSwitch);
+        });
+
+        var optionArg = $"-{anatomy.IdentifierSpan[^1].Value}{anatomy.OperandExpression}";
+        AddPosixArgument(optionArg, SemanticHint.None);
+         
+        return true;
+    }
+
+    private void AddPosixArgument(string arg, SemanticHint semanticHint)
+    {
+        var tokens = CharacterTokenLexer.GetTokens(arg);
+        var sequence = new TokenizedInputSequence(tokens);
+        var prefix = SemanticAnatomy.Create(sequence);
+        _list.Add(new SemanticArgument(Ordinal, sequence, prefix, semanticHint));
+    }
+
+    private bool ParseGnuPrefixFormatSequence(QueueValue queueValue)
+    {
+        var anatomy = queueValue.Anatomy;
+        
+        // Validate format
+        var valid = !anatomy.IdentifierSpan.Scan(false, (state, token) =>
+            state || !(char.IsLetterOrDigit(token.Value) || token.Value == '-'));
+
+        if (!valid) return false;
+
+        _list.Add(new SemanticArgument(Ordinal, queueValue.Value, anatomy));
+        return true;
+    }
+
+    private bool ParseMicrosoftPrefixFormatSequence(QueueValue queueValue)
+    {
+        var anatomy = queueValue.Anatomy;
+        
+        // Validate format
+        var valid = !anatomy.IdentifierSpan.Scan(false, (state, token) =>
+            state || !char.IsLetterOrDigit(token.Value));
+
+        if (!valid) return false;
+
+        _list.Add(new SemanticArgument(Ordinal, queueValue.Value, anatomy));
+        return true;
+    }
+
+    private void ParseTerminatedArgument(TokenizedInputSequence input)
+    {
+        _list.Add(new SemanticArgument(Ordinal, input, SemanticHint.Terminated));
+    }
+
+    private int Ordinal => _list.Count;
+
+    private SemanticArgument? Last => _list.Count > 0 ? _list[^1] : null;
+
+    private static bool TryParseTerminatingSequence(TokenizedInputSequence input)
+    {
+        return input.Span is
+        [
+            { Type: CharacterType.TerminatingToken },
+            { Type: CharacterType.TerminatingToken }
+        ];
+    }
+}
