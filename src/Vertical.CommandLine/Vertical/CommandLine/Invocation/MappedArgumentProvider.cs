@@ -1,7 +1,6 @@
 ﻿using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Configuration;
 using Vertical.CommandLine.Conversion;
-using Vertical.CommandLine.Utilities;
 using Vertical.CommandLine.Validation;
 
 namespace Vertical.CommandLine.Invocation;
@@ -38,11 +37,8 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
             return defaultProvider.Value;
         }
 
-        var converter = symbol.Converter
-                        ?? Services.GetService<IValueConverter<T>>()
-                        ?? DefaultValueConverter<T>.Instance;
-        
-        var candidateValue = ConvertValue(symbol, converter!, binding.ArgumentValue);
+        var converter = ResolveConverterOrThrow(symbol);
+        var candidateValue = ConvertValue(symbol, converter, binding.ArgumentValue);
 
         var validator = symbol.Validator ?? Services.GetService<IValidator<T>>();
         if (validator != null)
@@ -51,6 +47,14 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
         }
 
         return candidateValue;
+    }
+
+    private IValueConverter<T> ResolveConverterOrThrow<T>(CliBindingSymbol<T> symbol)
+    {
+        return symbol.Converter
+               ?? Services.GetService<IValueConverter<T>>()
+               ?? DefaultValueConverter<T>.Instance
+               ?? throw new InvalidOperationException();
     }
 
     /// <inheritdoc />
@@ -78,7 +82,8 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     {
         try
         {
-            validator.Validate(new ValidationContext<T>(symbol, bindingValue));
+            if (!validator.Validate(new ValidationContext<T>(symbol, bindingValue)))
+                throw new Exception("Validation failed");
         }
         catch (Exception exception)
         {
@@ -102,7 +107,7 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     {
         var binding = (MultiValueArgumentBinding<T>)Bindings[parameterId];
         var symbol = binding.Symbol;
-        var converter = symbol.Converter ?? Services.GetRequiredService<IValueConverter<T>>();
+        var converter = ResolveConverterOrThrow(symbol);
         var validator = symbol.Validator ?? Services.GetService<IValidator<T>>();
 
         foreach (var argumentValue in binding.ArgumentValues)

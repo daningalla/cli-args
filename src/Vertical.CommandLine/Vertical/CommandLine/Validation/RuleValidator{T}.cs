@@ -8,7 +8,7 @@ public class RuleValidator<T> : IValidator<T>
 {
     private readonly Predicate<T> _predicate;
 
-    public RuleValidator(Predicate<T> predicate, Func<ValidationContext<T>, string>? messageFormatter)
+    public RuleValidator(Predicate<T> predicate, Func<ValidationContext<T>, string>? messageFormatter = null)
     {
         _predicate = predicate;
         MessageFormatter = messageFormatter;

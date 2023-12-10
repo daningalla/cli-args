@@ -20,6 +20,7 @@ public sealed class CliBindingSymbolsCollection : IEnumerable<CliBindingSymbol>
         .GetEnumerator();
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>

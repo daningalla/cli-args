@@ -58,7 +58,27 @@ public sealed class SemanticArgumentParser
             ParseTerminatedArgument(sequence);
         }
 
-        return _list.ToArray();
+        return PostProcessHints(_list);
+    }
+
+    private SemanticArgument[] PostProcessHints(IList<SemanticArgument> list)
+    {
+        SemanticArgument? next = null;
+
+        foreach (var argument in list.Reverse())
+        {
+            switch (argument)
+            {
+                case { IsOption: true, HasOperand: false } when next is null:
+                case { IsOption: true, HasOperand: false } when next.IsOption:
+                    argument.ChangeSemanticHint(SemanticHint.KnownSwitch);
+                    break;
+            }
+
+            next = argument;
+        }
+        
+        return list.ToArray();
     }
 
     private void ParseArgumentSequence(TokenizedInputSequence sequence)
@@ -84,7 +104,6 @@ public sealed class SemanticArgumentParser
         if (sequence.Length == 1)
             return false;
 
-        var prefixedSequence = SemanticAnatomy.Create(sequence);
         var format = queueValue.Anatomy.PrefixFormat;
 
         if (format == IdentifierFormat.None)
@@ -98,9 +117,9 @@ public sealed class SemanticArgumentParser
         };
     }
 
-    private bool ParsePosixPrefixFormatSequence(QueueValue value)
+    private bool ParsePosixPrefixFormatSequence(QueueValue queueValue)
     {
-        var anatomy = value.Anatomy;
+        var anatomy = queueValue.Anatomy;
         
         // Validate format
         var valid = !anatomy.IdentifierSpan.Scan(false, (state, token) => 
@@ -110,9 +129,16 @@ public sealed class SemanticArgumentParser
 
         if (anatomy.IdentifierSpan.Length == 1)
         {
-             
+            var hint = (queueValue, Last) switch
+            {
+                { queueValue.Anatomy.OperandExpression.Length: > 0 } => SemanticHint.None, 
+                { queueValue.Position: QueuePosition.Single or QueuePosition.Last } => SemanticHint.KnownSwitch,
+                { Last.HasOperand: true } => SemanticHint.KnownSwitch,
+                _ => default
+            };
+            
             // Simple single character option
-            _list.Add(new SemanticArgument(Ordinal, value.Value, anatomy));
+            _list.Add(new SemanticArgument(Ordinal, queueValue.Value, anatomy, hint));
             return true;
         }
         

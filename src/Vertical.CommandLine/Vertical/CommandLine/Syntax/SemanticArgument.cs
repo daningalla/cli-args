@@ -1,4 +1,5 @@
-﻿using Vertical.CommandLine.Utilities;
+﻿using System.Diagnostics.CodeAnalysis;
+using Vertical.CommandLine.Utilities;
 
 namespace Vertical.CommandLine.Syntax;
 
@@ -34,6 +35,8 @@ public class SemanticArgument
         Text = _tokens.GetString();
     }
 
+    internal void ChangeSemanticHint(SemanticHint hint) => SemanticHint = hint;
+
     /// <summary>
     /// Gets the argument's ordinal position.
     /// </summary>
@@ -52,7 +55,7 @@ public class SemanticArgument
     /// <summary>
     /// Gets the semantic hint for this argument.
     /// </summary>
-    public SemanticHint SemanticHint { get; }
+    public SemanticHint SemanticHint { get; private set; }
 
     /// <summary>
     /// Gets the full text of the argument.
@@ -80,5 +83,6 @@ public class SemanticArgument
     public bool IsDiscreetArgument => _anatomy.PrefixFormat == IdentifierFormat.None;
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"\"{Text}\"";
 }

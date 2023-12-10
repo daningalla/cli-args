@@ -49,11 +49,21 @@ public class SemanticArgumentParserTests
         arguments.Single().Tokens.Length.Should().Be(arg.Length);
     }
 
-    [Fact]
-    public void Parse_Finds_Known_Switches()
+    [Theory]
+    [InlineData(new[]{"-a"}, new[]{"-a"})]
+    [InlineData(new[]{"-ab"}, new[]{"-a", "-b"})]
+    [InlineData(new[]{"-abc", "true"}, new[]{"-a", "-b"})]
+    [InlineData(new[]{"-a=value", "-b", "-c"}, new []{"-b", "-c"})]
+    [InlineData(new[]{"-a=value", "-b", "-c", "-d"}, new []{"-b", "-c", "-d"})]
+    // Negative
+    [InlineData(new[]{"-a", "true"}, new string[]{})]
+    [InlineData(new[]{"-a=true"}, new string[]{})]
+    [InlineData(new[]{"arg"}, new string[]{})]
+    [InlineData(new[]{"arg1", "arg2"}, new string[]{})]
+    public void Parse_Finds_Known_Switches(string[] args, string[] expected)
     {
         // arrange
-        var input = CreateTokens("-abc", "arg", "--option=value", "-d", "-e");
+        var input = CreateTokens(args);
         
         // act
         var arguments = SemanticArgumentParser.Parse(input);
@@ -61,8 +71,8 @@ public class SemanticArgumentParserTests
         // assert
         var knownSwitches = arguments
             .Where(arg => arg.IsKnownSwitch)
-            .Select(arg => arg.Anatomy.Identifier);
-        knownSwitches.Should().Equal("a", "b", "d", "e"); 
+            .Select(arg => arg.Text);
+        knownSwitches.Should().Equal(expected); 
     }
 
     [Fact]

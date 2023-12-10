@@ -37,6 +37,12 @@ internal static class DefaultValueConverter
 
     internal static bool CanConvert(Type type) => FactoryDictionary.ContainsKey(type); 
 
-    internal static IValueConverter<T>? GetInstanceOrDefault<T>() => (IValueConverter<T>?)FactoryDictionary
-        .GetValueOrDefault(typeof(T))?.Invoke();
+    internal static IValueConverter<T>? GetInstanceOrDefault<T>()
+    {
+        var targetType = typeof(T);
+
+        return targetType.IsEnum
+            ? new EnumConverter<T>()
+            : (IValueConverter<T>?)FactoryDictionary.GetValueOrDefault(targetType)?.Invoke();
+    }
 }
