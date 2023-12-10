@@ -25,7 +25,8 @@ public sealed class SemanticArgumentCollection : IEnumerable<SemanticArgument>
     }
 
     private IEnumerable<SemanticArgument> UnmappedArguments => _unusedOptionHashSet
-        .Concat(_argumentOrdinalDictionary.Values);
+        .Concat(_argumentOrdinalDictionary.Values)
+        .OrderBy(arg => arg.Ordinal);
 
     /// <summary>
     /// Gets whether they are arguments remaining in the collection.
@@ -69,11 +70,13 @@ public sealed class SemanticArgumentCollection : IEnumerable<SemanticArgument>
             .SelectMany(identifier => _optionIdentifierLookup[identifier])
             .Where(_unusedOptionHashSet.Remove);
 
-        foreach (var entry in entries)
-        {
-            TryPeekValueArgument(entry.Ordinal + 1, out var operandArgument);
-            yield return (entry, operandArgument);
-        }
+        return entries
+            .Select(entry =>
+            {
+                TryPeekValueArgument(entry.Ordinal + 1, out var operandArgument);
+                return (entry, operandArgument);
+            })
+            .ToArray();
     }
 
     private IEnumerable<SemanticArgument> GetOptionArguments(CliSymbol option)
