@@ -30,22 +30,22 @@ public class Command : CliSymbol
     /// <summary>
     /// Gets the sub-commands for this instance.
     /// </summary>
-    public List<Command> Commands { get; init; } = new();
+    public List<Command> Commands { get; } = new();
 
     /// <summary>
     /// Gets the options, arguments, and switches defined for the command.
     /// </summary>
-    public List<CliBindingSymbol> Bindings { get; init; } = new();
+    public List<CliBindingSymbol> Bindings { get; } = new();
 
     /// <summary>
     /// Gets a list of converters.
     /// </summary>
-    public List<IValueConverter> Converters { get; init; } = new();
+    public List<IValueConverter> Converters { get; } = new();
 
     /// <summary>
     /// Gets a list of validators.
     /// </summary>
-    public List<IValidator> Validators { get; init; } = new();
+    public List<IValidator> Validators { get; } = new();
 
     /// <inheritdoc />
     public override string ToString() => '"' + string.Join(" | ", new[] { Id }.Concat(Aliases)) + '"';

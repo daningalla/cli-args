@@ -1,4 +1,6 @@
-﻿namespace Vertical.CommandLine.Syntax;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Vertical.CommandLine.Syntax;
 
 /// <summary>
 /// Represents a tokenized form of an input argument.
@@ -33,11 +35,6 @@ public readonly struct TokenizedInputSequence : IEquatable<TokenizedInputSequenc
     public string Text { get; }
 
     /// <summary>
-    /// Gets the full text of the sequence as a <see cref="ReadOnlySpan{T}"/>
-    /// </summary>
-    public ReadOnlySpan<char> TextSpan => Text.AsSpan();
-
-    /// <summary>
     /// Gets the token span.
     /// </summary>
     public ReadOnlySpan<CharacterToken> Span => TokenArray.AsSpan();
@@ -55,9 +52,11 @@ public readonly struct TokenizedInputSequence : IEquatable<TokenizedInputSequenc
     public CharacterToken this[int index] => TokenArray[index];
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override string ToString() => Text;
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override int GetHashCode() => Text.GetHashCode();
 
     /// <inheritdoc />

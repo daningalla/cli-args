@@ -1,4 +1,6 @@
-﻿namespace Vertical.CommandLine.Syntax;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Vertical.CommandLine.Syntax;
 
 /// <summary>
 /// Represents a character token used in parsing.
@@ -26,11 +28,6 @@ public readonly struct CharacterToken : IEquatable<CharacterToken>
     /// Gets the character type.
     /// </summary>
     public CharacterType Type { get; }
-    
-    /// <summary>
-    /// Gets the full span of the text in which the token is located.
-    /// </summary>
-    public ReadOnlySpan<char> FullSpan => _text.AsSpan();
 
     /// <summary>
     /// Gets the token value.
@@ -38,6 +35,7 @@ public readonly struct CharacterToken : IEquatable<CharacterToken>
     public char Value => _text[Index];
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{Type} '{Value}'";
 
     /// <inheritdoc />

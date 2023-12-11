@@ -1,10 +1,5 @@
 ﻿namespace Vertical.CommandLine.Collections;
 
-internal static class ScannerExtensions
-{
-    internal static Scanner<T> CreateScanner<T>(this T[] array) where T : notnull => new(array);
-}
-
 internal ref struct Scanner<T> where T : notnull
 {
     private static readonly EqualityComparer<T> Comparer = EqualityComparer<T>.Default;
@@ -40,25 +35,6 @@ internal ref struct Scanner<T> where T : notnull
         if (matched) Position++;
         return matched;
     }
-
-    internal bool TryScanValue(T value)
-    {
-        var matched = Ready && Comparer.Equals(value, Current);
-        if (matched) Position++;
-        return matched;
-    }
-
-    internal bool Advance(int count = 1)
-    {
-        Position += count;
-        return Ready;
-    }
-
-    internal ReadOnlySpan<T> UnreadSpan => _array.AsSpan()[Position..];
-
-    internal ReadOnlySpan<T> ReadSpan => _array.AsSpan()[..Position];
-
-    internal ReadOnlySpan<T> Span => _array.AsSpan();
 
     internal int Position { get; private set; } = 0;
 

@@ -2,21 +2,18 @@
 
 public sealed class MultiRuleValidator<T> : IValidator<T>
 {
-    private readonly IEnumerable<Predicate<T>> _predicates;
+    private readonly IEnumerable<ValidationRuleImplementation<T>> _ruleImplementations;
 
-    public MultiRuleValidator(
-        IEnumerable<Predicate<T>> predicates,
-        Func<ValidationContext<T>, string>? messageFormatter)
+    public MultiRuleValidator(IEnumerable<ValidationRuleImplementation<T>> ruleImplementations)
     {
-        _predicates = predicates;
-        MessageFormatter = messageFormatter;
+        _ruleImplementations = ruleImplementations;
     }
     
     /// <inheritdoc />
     public Type ServiceType => typeof(IValidator<T>);
 
     /// <inheritdoc />
-    public bool Validate(ValidationContext<T> context) => _predicates.All(predicate => predicate(context.AttemptedValue));
+    public bool Validate(ValidationContext<T> context) => _ruleImplementations.All(impl => impl.Predicate(context));
 
     /// <inheritdoc />
     public Func<ValidationContext<T>, string>? MessageFormatter { get; }

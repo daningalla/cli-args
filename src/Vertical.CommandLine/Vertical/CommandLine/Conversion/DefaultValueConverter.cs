@@ -9,7 +9,7 @@ internal static class DefaultValueConverter
             [typeof(string)] = () => new ValueConverter<string>(str => str),
             [typeof(Guid)] = () => new ValueConverter<Guid>(Guid.Parse),
             
-            [typeof(sbyte)] = () => new ValueConverter<double>(double.Parse),
+            [typeof(sbyte)] = () => new ValueConverter<sbyte>(sbyte.Parse),
             [typeof(short)] = () => new ValueConverter<short>(short.Parse),
             [typeof(int)] = () => new ValueConverter<int>(int.Parse),
             [typeof(long)] = () => new ValueConverter<long>(long.Parse),

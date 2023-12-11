@@ -79,17 +79,10 @@ public sealed class SemanticArgumentCollection : IEnumerable<SemanticArgument>
             .ToArray();
     }
 
-    private IEnumerable<SemanticArgument> GetOptionArguments(CliSymbol option)
-    {
-        return option
-            .Identifiers
-            .SelectMany(identifier => _optionIdentifierLookup[identifier])
-            .Where(_unusedOptionHashSet.Contains);
-    }
-
     /// <inheritdoc />
     public IEnumerator<SemanticArgument> GetEnumerator() => UnmappedArguments.GetEnumerator();
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

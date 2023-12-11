@@ -38,6 +38,7 @@ public sealed class BindingDictionary<T>
     /// </summary>
     /// <param name="key">Key.</param>
     /// <returns><c>bool</c></returns>
+    [ExcludeFromCodeCoverage]
     public bool ContainsKey(string key) => _dictionary.ContainsKey(key);
 
     /// <summary>
@@ -49,11 +50,13 @@ public sealed class BindingDictionary<T>
     /// <summary>
     /// Gets the keys in the dictionary.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public IEnumerable<string> Keys => _dictionary.Keys;
 
     /// <summary>
     /// Gets the values in the dictionary.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public IEnumerable<T> Values => _dictionary.Values;
 
     /// <summary>
