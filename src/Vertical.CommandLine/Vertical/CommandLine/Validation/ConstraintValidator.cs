@@ -1,9 +1,12 @@
 ﻿namespace Vertical.CommandLine.Validation;
 
+/// <summary>
+/// Represents a validator with a single value constraint.
+/// </summary>
+/// <typeparam name="T">Value type.</typeparam>
 public class ConstraintValidator<T> : IValidator<T>
 {
     private readonly ValueConstraint<T> _constraint;
-
 
     public ConstraintValidator(Func<T, bool> predicate, Func<T, string>? messageFormatter = null)
         : this(new ValueConstraint<T>(predicate, messageFormatter))

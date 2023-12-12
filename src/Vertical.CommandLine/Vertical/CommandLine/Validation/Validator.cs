@@ -2,7 +2,7 @@
 
 public static class Validator
 {
-    public static IValidator<T> Build<T>(Action<IValidatorBuilder<T>> configure)
+    public static IValidator<T> Build<T>(Action<ValidatorBuilder<T>> configure)
     {
         var builder = new ValidatorBuilder<T>();
         configure(builder);
