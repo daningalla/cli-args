@@ -12,13 +12,13 @@ public abstract class CliBindingSymbol<T> : CliBindingSymbol
         Arity arity,
         BindingScope scope,
         IValueConverter<T>? converter,
-        Action<IValidationBuilder<T>>? configureValidator,
+        IValidator<T>? validator,
         Func<T>? defaultProvider) 
         : base(id, aliases, arity, scope, typeof(T))
     {
         DefaultProvider = defaultProvider != null ? new DefaultValueProvider<T>(defaultProvider) : null;
         Converter = converter;
-        Validator = ValidationBuilder<T>.Configure(configureValidator);
+        Validator = validator;
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ public class Argument<T> : CliBindingSymbol<T>
     /// <param name="arity">The arity of the option, defaults to <see cref="Arity.ZeroOrOne"/>.</param>
     /// <param name="scope">The scope applied to this symbol.</param>
     /// <param name="converter">An object that converts a string argument value to the managed value type.</param>
-    /// <param name="configureValidation">An action that configures a validation pipeline.</param>
+    /// <param name="validator">An action that configures a validation pipeline.</param>
     /// <param name="defaultProvider">
     /// function that provides a default value if the symbol is not mapped to a program argument.
     /// </param>
@@ -25,9 +25,12 @@ public class Argument<T> : CliBindingSymbol<T>
         Arity? arity = null,
         BindingScope scope = BindingScope.Self,
         IValueConverter<T>? converter = null,
-        Action<IValidationBuilder<T>>? configureValidation = null,
+        IValidator<T>? validator = null,
         Func<T>? defaultProvider = null) 
-        : base(id, null, arity ?? Arity.ZeroOrOne, scope, converter, configureValidation, defaultProvider)
+        : base(id, null, arity ?? Arity.ZeroOrOne, scope, 
+            converter, 
+            validator, 
+            defaultProvider)
     {
     }
 

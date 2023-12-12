@@ -13,7 +13,7 @@ public class Switch : Option<bool>
     /// <param name="aliases">An optional array of unique aliases the switch is also known as.</param>
     /// <param name="scope">The scope applied to this symbol.</param>
     /// <param name="converter">An object that converts string argument values to the symbol value type.</param>
-    /// <param name="configureValidator">An action that configures a validation pipeline.</param>
+    /// <param name="validator">An object that validates binding values.</param>
     /// <param name="defaultProvider">
     /// function that provides a default value if the symbol is not mapped to a program argument.
     /// </param>
@@ -25,7 +25,7 @@ public class Switch : Option<bool>
         string[]? aliases = null, 
         BindingScope scope = BindingScope.Self,
         IValueConverter<bool>? converter = null,
-        Action<IValidationBuilder<bool>>? configureValidator = null,
+        IValidator<bool>? validator = null,
         Func<bool>? defaultProvider = null) 
         : base(
             id, 
@@ -33,7 +33,7 @@ public class Switch : Option<bool>
             arity: Arity.ZeroOrOne, 
             scope, 
             converter, 
-            configureValidator, 
+            validator, 
             defaultProvider ?? (() => true))
     {
     }

@@ -1,10 +1,10 @@
 ﻿namespace Vertical.CommandLine.Validation;
 
-public sealed class Validator<T> : IValidator<T>
+public sealed class MultiConstraintValidator<T> : IValidator<T>
 {
     private readonly IEnumerable<ValueConstraint<T>> _constraints;
-
-    public Validator(IEnumerable<ValueConstraint<T>> constraints)
+    
+    public MultiConstraintValidator(IEnumerable<ValueConstraint<T>> constraints)
     {
         _constraints = constraints;
     }
