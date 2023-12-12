@@ -13,7 +13,7 @@ public class CommandLineException : Exception
     private const string SymbolKey = "Symbol";
     private const string AttemptedValueKey = "AttemptedValue";
     private const string AttemptedValuesKey = "AttemptedValues";
-    private const string ValidatorKey = "Validator";
+    private const string ValidationContextKey = "ValidationContext";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandLineException"/> class.
@@ -47,7 +47,7 @@ public class CommandLineException : Exception
     /// <summary>
     /// Gets the validator or <c>null</c>.
     /// </summary>
-    public IValidator? Validator => (IValidator?)Data[ValidatorKey];
+    public IValidator? Validator => (IValidator?)Data[ValidationContextKey];
 
     /// <summary>
     /// Gets the command line error.
@@ -82,24 +82,6 @@ public class CommandLineException : Exception
             innerException,
             (SymbolKey, symbol),
             (AttemptedValueKey, argumentValue));
-    }
-
-    internal static Exception ValidationFailed<T>(
-        CliBindingSymbol<T> symbol,
-        IValidator<T> validator,
-        T attemptedValue,
-        Exception exception)
-    {
-        var message = validator.MessageFormatter?.Invoke(new ValidationContext<T>(symbol, attemptedValue))
-                      ?? $"{symbol.SymbolType} '{symbol}': Value \"{attemptedValue}\" is not valid.";
-
-        return Create(
-            CommandLineError.ValidationFailed,
-            message,
-            exception,
-            (SymbolKey, symbol),
-            (AttemptedValueKey, attemptedValue!),
-            (ValidatorKey, validator));
     }
 
     internal static Exception MinimumArityNotMet(CliBindingSymbol symbol, IEnumerable<string?> arguments)
@@ -177,5 +159,21 @@ public class CommandLineException : Exception
             message,
             null,
             (SymbolKey, symbol));
+    }
+
+    public static Exception ValidationFailed<T>(ValidationContext<T> context)
+    {
+        var constraint = context.Failures.FirstOrDefault();
+        var errorMessage = constraint?.MessageFormatter?.Invoke(context.AttemptedValue);
+        var errorString = errorMessage != null ? $": {errorMessage}" : ".";
+        var message = $"{context.Symbol.SymbolType} {context.Symbol} value \"{context.AttemptedValue}\" " + 
+                      $"is not valid{errorString}";
+
+        return Create(
+            CommandLineError.ValidationFailed,
+            message,
+            null,
+            (SymbolKey, context.Symbol),
+            (AttemptedValueKey, context.AttemptedValue!));
     }
 }

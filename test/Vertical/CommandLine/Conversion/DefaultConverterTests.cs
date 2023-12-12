@@ -54,7 +54,7 @@ public class DefaultConverterTests
                 null!))
             .FullName
             .Should()
-            .Be("/usr/lib/dotnet");
+            .Be(new FileInfo("/usr/lib/dotnet").FullName);
     }
     
     [Fact]
@@ -65,7 +65,7 @@ public class DefaultConverterTests
                 null!))
             .FullName
             .Should()
-            .Be("/var/lib");
+            .Be(new DirectoryInfo("/var/lib").FullName);
     }
     
     [Fact]

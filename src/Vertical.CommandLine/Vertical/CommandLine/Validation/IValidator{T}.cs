@@ -2,7 +2,5 @@
 
 public interface IValidator<T> : IValidator
 {
-    bool Validate(ValidationContext<T> context);
-    
-    Func<ValidationContext<T>, string>? MessageFormatter { get; }
+    void Validate(IValidationContext<T> context);
 }

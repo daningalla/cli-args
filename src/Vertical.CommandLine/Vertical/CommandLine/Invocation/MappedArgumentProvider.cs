@@ -80,15 +80,13 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
 
     private static void ValidateValue<T>(CliBindingSymbol<T> symbol, IValidator<T> validator, T bindingValue)
     {
-        try
-        {
-            if (!validator.Validate(new ValidationContext<T>(symbol, bindingValue)))
-                throw new Exception("Validation failed");
-        }
-        catch (Exception exception)
-        {
-            throw CommandLineException.ValidationFailed(symbol, validator, bindingValue, exception);
-        }
+        var context = new ValidationContext<T>(symbol, bindingValue);
+        validator.Validate(context);
+
+        if (context.IsValid)
+            return;
+        
+        throw CommandLineException.ValidationFailed(context);
     }
 
     private static T ConvertValue<T>(CliBindingSymbol<T> symbol, IValueConverter<T> converter, string argumentValue)

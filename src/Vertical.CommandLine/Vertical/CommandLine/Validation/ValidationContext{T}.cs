@@ -1,9 +1,16 @@
-﻿using Vertical.CommandLine.Configuration;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using Vertical.CommandLine.Configuration;
 
 namespace Vertical.CommandLine.Validation;
 
-public readonly struct ValidationContext<T>
+/// <summary>
+/// Represents a context that manages a validation operation.
+/// </summary>
+/// <typeparam name="T">Value type.</typeparam>
+public sealed class ValidationContext<T> : IValidationContext<T>
 {
+    
     internal ValidationContext(
         CliBindingSymbol<T> symbol,
         T attemptedValue)
@@ -21,4 +28,14 @@ public readonly struct ValidationContext<T>
     /// Gets the value that was attempted.
     /// </summary>
     public T AttemptedValue { get; }
+
+    /// <inheritdoc />
+    public ICollection<ValueConstraint<T>> Failures { get; } = new List<ValueConstraint<T>>();
+
+    /// <inheritdoc />
+    public bool IsValid => Failures.Count == 0;
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public override string ToString() => $"Failures={Failures.Count}";
 }

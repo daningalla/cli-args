@@ -12,7 +12,7 @@ public sealed class Argument : Argument<string?>
     /// <param name="arity">The arity of the option, defaults to <see cref="Arity.ZeroOrOne"/>.</param>
     /// <param name="scope">The scope applied to this symbol.</param>
     /// <param name="converter">An object that converts string argument values to the symbol value type.</param>
-    /// <param name="validator">An object that ensures the value is valid within an argument context.</param>
+    /// <param name="configureValidation">An action that configures a validation pipeline.</param>
     /// <param name="defaultProvider">
     /// function that provides a default value if the symbol is not mapped to a program argument.
     /// </param>
@@ -23,9 +23,9 @@ public sealed class Argument : Argument<string?>
         Arity? arity = null,
         BindingScope scope = BindingScope.Self,
         IValueConverter<string?>? converter = null,
-        IValidator<string?>? validator = null,
+        Action<IValidationBuilder<string?>>? configureValidation = null,
         Func<string?>? defaultProvider = null) 
-        : base(id, arity, scope, converter, validator, defaultProvider)
+        : base(id, arity, scope, converter, configureValidation, defaultProvider)
     {
     }
 }

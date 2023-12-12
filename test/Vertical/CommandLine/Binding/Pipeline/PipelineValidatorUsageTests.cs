@@ -14,8 +14,8 @@ public class PipelineValidatorUsageTests
         // arrange
         var command = new RootCommand
         {
-            Bindings = { new Option<int>("--count", validator: new RuleValidator<int>(i => i != ThrowToken)) },
-            Validators = { new RuleValidator<int>(i => i == ThrowToken) },
+            Bindings = { new Option<int>("--count", configureValidator: ConfigureValidator(i => i != ThrowToken)) },
+            Validators = { CreateValidator(i => i == ThrowToken) },
             Handler = () => { }
         };
         
@@ -37,7 +37,7 @@ public class PipelineValidatorUsageTests
         var command = new RootCommand
         {
             Bindings = { new Option<int>("--count") },
-            Validators = { new RuleValidator<int>(i => i != ThrowToken) },
+            Validators = { CreateValidator(i => i != ThrowToken) },
             Handler = () => { }
         };
         
@@ -58,7 +58,7 @@ public class PipelineValidatorUsageTests
         // arrange
         var command = new RootCommand
         {
-            Validators = { new RuleValidator<int>(i => i != ThrowToken) },
+            Validators = { CreateValidator(i => i != ThrowToken) },
             Commands =
             {
                 new Command("cmd")
@@ -79,4 +79,14 @@ public class PipelineValidatorUsageTests
             .Should()
             .Throw<CommandLineException>();
     }
+
+    private static IValidator<int> CreateValidator(Func<int, bool> predicate)
+    {
+        return new Validator<int>(new[] { new ValueConstraint<int>(predicate, null) });
+    }
+
+    private static Action<IValidationBuilder<int>> ConfigureValidator(Func<int, bool> predicate)
+    {
+        return builder => builder.Must(predicate);
+    } 
 }
