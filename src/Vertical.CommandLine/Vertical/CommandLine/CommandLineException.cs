@@ -164,10 +164,9 @@ public class CommandLineException : Exception
     public static Exception ValidationFailed<T>(ValidationContext<T> context)
     {
         var constraint = context.Failures.FirstOrDefault();
-        var errorMessage = constraint?.MessageFormatter?.Invoke(context.AttemptedValue);
-        var errorString = errorMessage != null ? $": {errorMessage}" : ".";
-        var message = $"{context.Symbol.SymbolType} {context.Symbol} value \"{context.AttemptedValue}\" " + 
-                      $"is not valid{errorString}";
+        var messageClause = constraint?.MessageFormatter?.Invoke(context.AttemptedValue)
+                            ?? $"Attempted value \"{context.AttemptedValue}\" is invalid.";
+        var message = $"{context.Symbol.SymbolType} {context.Symbol}: {messageClause}";
 
         return Create(
             CommandLineError.ValidationFailed,

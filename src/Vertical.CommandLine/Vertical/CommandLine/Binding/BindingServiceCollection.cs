@@ -1,4 +1,6 @@
-﻿namespace Vertical.CommandLine.Binding;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Vertical.CommandLine.Binding;
 
 public sealed class BindingServiceCollection
 {
@@ -31,11 +33,20 @@ public sealed class BindingServiceCollection
         return (T)_services[typeof(T)];
     }
 
-    public void TryAdd(IBindingService? service)
+    public bool TryGetService<T>([NotNullWhen(true)] out T? service) where T : IBindingService
     {
-        if (service == null)
-            return;
+        service = _services.TryGetValue(typeof(T), out var obj)
+            ? (T)obj
+            : default;
 
-        Add(service);
+        return service != null;
+    }
+
+    public IEnumerable<T> GetServices<T>() where T : IBindingService
+    {
+        return _services
+            .Where(kv => typeof(T).IsAssignableFrom(kv.Key))
+            .Select(kv => kv.Value)
+            .Cast<T>();
     }
 }

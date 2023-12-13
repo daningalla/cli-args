@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Vertical.CommandLine.Configuration;
 
 namespace Vertical.CommandLine.Validation;
@@ -30,7 +29,7 @@ public sealed class ValidationContext<T> : IValidationContext<T>
     public T AttemptedValue { get; }
 
     /// <inheritdoc />
-    public ICollection<ValueConstraint<T>> Failures { get; } = new List<ValueConstraint<T>>();
+    public ICollection<ValidationRule<T>> Failures { get; } = new List<ValidationRule<T>>();
 
     /// <inheritdoc />
     public bool IsValid => Failures.Count == 0;

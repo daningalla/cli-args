@@ -3,7 +3,7 @@ using Vertical.CommandLine.Validation;
 
 namespace Vertical.CommandLine;
 
-public class Option : Option<string?>
+public class Option : Option<string>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Option{T}"/> class.
@@ -25,9 +25,9 @@ public class Option : Option<string?>
         string[]? aliases = null, 
         Arity? arity = null,
         BindingScope scope = BindingScope.Self,
-        IValueConverter<string?>? converter = null,
-        IValidator<string?>? validator = null,
-        Func<string?>? defaultProvider = null) 
+        IValueConverter<string>? converter = null,
+        IValidator<string>? validator = null,
+        Func<string>? defaultProvider = null) 
         : base(id, aliases, arity, scope, converter, validator, defaultProvider)
     {
     }

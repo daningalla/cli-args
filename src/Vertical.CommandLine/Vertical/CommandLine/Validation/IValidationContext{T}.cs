@@ -14,7 +14,7 @@ public interface IValidationContext<T>
     /// <summary>
     /// Gets the collection of failures.
     /// </summary>
-    ICollection<ValueConstraint<T>> Failures { get; }
+    ICollection<ValidationRule<T>> Failures { get; }
     
     /// <summary>
     /// Gets whether <see cref="AttemptedValue"/> is valid, e.g. functionally if

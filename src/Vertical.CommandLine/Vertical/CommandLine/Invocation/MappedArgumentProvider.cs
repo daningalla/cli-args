@@ -45,16 +45,8 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
         {
             ValidateValue(symbol, validator, candidateValue);
         }
-
+ 
         return candidateValue;
-    }
-
-    private IValueConverter<T> ResolveConverterOrThrow<T>(CliBindingSymbol<T> symbol)
-    {
-        return symbol.Converter
-               ?? Services.GetService<IValueConverter<T>>()
-               ?? DefaultValueConverter<T>.Instance
-               ?? throw new InvalidOperationException();
     }
 
     /// <inheritdoc />
@@ -118,5 +110,13 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
 
             yield return candidateValue;
         }
+    }
+
+    private IValueConverter<T> ResolveConverterOrThrow<T>(CliBindingSymbol<T> symbol)
+    {
+        return symbol.Converter
+               ?? Services.GetService<IValueConverter<T>>()
+               ?? DefaultValueConverter<T>.Instance
+               ?? throw new InvalidOperationException();
     }
 }

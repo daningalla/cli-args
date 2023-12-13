@@ -82,6 +82,8 @@ public class PipelineValidatorUsageTests
 
     private static IValidator<int> CreateValidator(Func<int, bool> predicate)
     {
-        return new MultiConstraintValidator<int>(new[] { new ValueConstraint<int>(predicate, null) });
+        return new ValidatorBuilder<int>()
+            .Must(predicate)
+            .Build();
     }
 }

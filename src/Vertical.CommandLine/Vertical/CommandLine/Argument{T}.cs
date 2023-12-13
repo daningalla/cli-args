@@ -15,13 +15,13 @@ public class Argument<T> : CliBindingSymbol<T>
     /// <param name="converter">An object that converts a string argument value to the managed value type.</param>
     /// <param name="validator">An action that configures a validation pipeline.</param>
     /// <param name="defaultProvider">
-    /// function that provides a default value if the symbol is not mapped to a program argument.
+    /// A function that provides a default value if the symbol is not mapped to a program argument.
     /// </param>
     /// <exception cref="InvalidOperationException">There is no default converter for <typeparamref name="T"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="id"/> is null or empty.</exception>
     /// <exception cref="FormatException"><paramref name="id"/> is not a valid identifier.</exception>
     public Argument(
-        string id, 
+        string id,
         Arity? arity = null,
         BindingScope scope = BindingScope.Self,
         IValueConverter<T>? converter = null,

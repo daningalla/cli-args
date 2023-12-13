@@ -16,7 +16,7 @@ public class Option<T> : CliBindingSymbol<T>
     /// <param name="converter">An object that converts a string argument value to the managed value type.</param>
     /// <param name="validator">An object that validates the binding value.</param>
     /// <param name="defaultProvider">
-    /// function that provides a default value if the symbol is not mapped to a program argument.
+    ///     function that provides a default value if the symbol is not mapped to a program argument.
     /// </param>
     /// <exception cref="InvalidOperationException">There is no default converter for <typeparamref name="T"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="id"/> is null or empty.</exception>

@@ -31,10 +31,8 @@ public class Switch : Option<bool>
             id, 
             aliases, 
             arity: Arity.ZeroOrOne, 
-            scope, 
-            converter, 
-            validator, 
-            defaultProvider ?? (() => true))
+            scope: scope, 
+            converter: converter, validator: validator, defaultProvider: defaultProvider ?? (() => true))
     {
     }
 

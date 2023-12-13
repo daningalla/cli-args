@@ -1,5 +1,4 @@
 ﻿using Vertical.CommandLine.Configuration;
-using Vertical.CommandLine.Utilities;
 
 namespace Vertical.CommandLine.Binding;
 
@@ -15,10 +14,7 @@ public sealed class SingleArgumentValueBinding<T> : IArgumentValueBinding<T>
 
     /// <inheritdoc />
     public string BindingId => Symbol.Id;
-
-    /// <inheritdoc />
-    public string ParameterId => NamingUtilities.GetInferredBindingName(Symbol.Id);
-
+    
     /// <summary>
     /// Gets the argument value or <c>null</c> if an argument was not provided.
     /// </summary>
