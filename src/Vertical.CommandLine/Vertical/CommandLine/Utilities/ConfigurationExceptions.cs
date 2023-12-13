@@ -164,4 +164,14 @@ internal static class ConfigurationExceptions
 
         return new InvalidOperationException(message);
     }
+
+    public static Exception NoBindingSymbolForId(string symbolId)
+    {
+        return new InvalidOperationException($"Cannot resolve binding symbol \"{symbolId}\".");
+    }
+
+    public static Exception IncompatibleBindingSymbolType(CliBindingSymbol symbol, Type type)
+    {
+        throw new NotImplementedException();
+    }
 }

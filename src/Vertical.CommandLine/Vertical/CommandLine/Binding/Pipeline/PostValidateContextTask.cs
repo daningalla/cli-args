@@ -1,6 +1,4 @@
-﻿using Vertical.CommandLine.Utilities;
-
-namespace Vertical.CommandLine.Binding.Pipeline;
+﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
 public class PostValidateContextTask : IBindingTask
 {

@@ -32,9 +32,7 @@ public sealed class AddArgumentValueBindingsTask : IBindingTask
                 })
                 .ToArray();
 
-            var binding = symbol.Arity.AllowsMany
-                ? symbol.CreateMultiValueBinding(argumentValues)
-                : symbol.CreateBinding(argumentValues.FirstOrDefault());
+            var binding = symbol.CreateBinding(argumentValues);
             
             context.AddBindingContext(binding);
         }

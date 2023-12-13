@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public class AddServicesInPathTask : IBindingTask
+public class AddCommandPathServicesTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

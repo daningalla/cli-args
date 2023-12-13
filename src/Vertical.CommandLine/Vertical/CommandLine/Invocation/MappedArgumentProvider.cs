@@ -28,17 +28,18 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     /// <inheritdoc />
     public T GetValue<T>(string parameterId)
     {
-        var binding = (SingleArgumentValueBinding<T>)Bindings[parameterId];
+        var binding = (ArgumentValueBinding<T>)Bindings[parameterId];
         var symbol = binding.Symbol;
+        var value = binding.ArgumentValues.FirstOrDefault();
 
-        if (binding.ArgumentValue == null)
+        if (value == null)
         {
             var defaultProvider = symbol.DefaultProvider ?? DefaultValueProvider<T>.Instance;
             return defaultProvider.Value;
         }
 
         var converter = ResolveConverterOrThrow(symbol);
-        var candidateValue = ConvertValue(symbol, converter, binding.ArgumentValue);
+        var candidateValue = ConvertValue(symbol, converter, value);
 
         var validator = symbol.Validator ?? Services.GetService<IValidator<T>>();
         if (validator != null)
@@ -95,7 +96,7 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
 
     private IEnumerable<T> GetValues<T>(string parameterId)
     {
-        var binding = (MultiValueArgumentBinding<T>)Bindings[parameterId];
+        var binding = (ArgumentValueBinding<T>)Bindings[parameterId];
         var symbol = binding.Symbol;
         var converter = ResolveConverterOrThrow(symbol);
         var validator = symbol.Validator ?? Services.GetService<IValidator<T>>();

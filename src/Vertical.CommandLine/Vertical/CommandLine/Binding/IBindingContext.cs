@@ -71,7 +71,7 @@ public interface IBindingContext
     /// </summary>
     /// <param name="binding">The context that represents a binding between a symbol and a semantic argument.</param>
     void AddBindingContext(IArgumentValueBinding binding);
-
+    
     /// <summary>
     /// Stages the specified binding symbols.
     /// </summary>

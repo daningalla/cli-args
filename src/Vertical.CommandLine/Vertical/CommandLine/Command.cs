@@ -1,4 +1,5 @@
-﻿using Vertical.CommandLine.Configuration;
+﻿using Vertical.CommandLine.Binding;
+using Vertical.CommandLine.Configuration;
 using Vertical.CommandLine.Conversion;
 using Vertical.CommandLine.Validation;
 

@@ -13,30 +13,35 @@ public abstract class BindingContextTest
     
     protected void AssertBooleanBinding(string symbol, bool? expected)
     {
+        // arrange
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
-        var binding = (SingleArgumentValueBinding<bool>)bindings[symbol];
+        var binding = (ArgumentValueBinding<bool>)bindings[symbol];
+        
+        // act
+        var value = binding.ArgumentValues.FirstOrDefault();
+        
         if (expected.HasValue)
-            bool.Parse(binding.ArgumentValue!).Should().Be(expected.Value);
+            bool.Parse(value!).Should().Be(expected.Value);
         else
-            binding.ArgumentValue.Should().BeNull();
+            value.Should().BeNull();
     }
 
     protected void AssertStringBinding(string symbol, string? expected)
     {
+        // arrange
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
-        if (expected == null)
-        {
-            ((SingleArgumentValueBinding<string?>)bindings[symbol]).ArgumentValue.Should().Be(expected);
-            return;
-        }
+        
+        // act
+        var value = bindings[symbol].ArgumentValues.FirstOrDefault();
 
-        ((SingleArgumentValueBinding<string>)bindings[symbol]).ArgumentValue.Should().Be(expected);
+        // assert
+        value.Should().Be(expected);
     }
 
     protected void AssertStringMultiBinding(string symbol, IEnumerable<string> expected)
     {
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
-        var binding = (MultiValueArgumentBinding<string>)bindings[symbol];
+        var binding = (ArgumentValueBinding<string>)bindings[symbol];
 
         binding.ArgumentValues.Should().Equal(expected);
     }

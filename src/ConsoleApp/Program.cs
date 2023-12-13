@@ -4,8 +4,6 @@ using Vertical.CommandLine.Validation;
 
 Console.WriteLine("Hello, World!");
 
-var match = new[] { 1, 2, 3 } is [1,2];
-
 var command = new RootCommand
 {
     Commands =

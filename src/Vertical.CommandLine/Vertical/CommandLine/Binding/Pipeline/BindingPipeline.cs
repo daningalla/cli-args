@@ -11,7 +11,7 @@ public static class BindingPipeline
 #endif
         new BuildCommandPathTask(),
         new AddBindingSymbolsTask(),
-        new AddServicesInPathTask(),
+        new AddCommandPathServicesTask(),
         new PrepareSemanticArgumentsTask(),
         new AddOptionValueBindingsTask(),
         new AddArgumentValueBindingsTask(),

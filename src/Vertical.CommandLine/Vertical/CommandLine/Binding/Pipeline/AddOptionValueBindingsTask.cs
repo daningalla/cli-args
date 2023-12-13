@@ -39,7 +39,12 @@ public class AddOptionValueBindingsTask : IBindingTask
         CliBindingSymbol symbol,
         IEnumerable<string?> argumentValues)
     {
-        context.AddBindingContext(symbol.CreateBinding(argumentValues.FirstOrDefault()));
+        var value = argumentValues.FirstOrDefault();
+        var bindingValues = value != null
+            ? new[] { value }
+            : Enumerable.Empty<string>();
+        
+        context.AddBindingContext(symbol.CreateBinding(bindingValues));
         return 0;
     }
 
@@ -53,9 +58,7 @@ public class AddOptionValueBindingsTask : IBindingTask
             throw CommandLineException.OptionMissingOperand(symbol);
         }
 
-        var binding = symbol.Arity.AllowsMany
-            ? symbol.CreateMultiValueBinding(argumentValues.Cast<string>())
-            : symbol.CreateBinding(argumentValues.FirstOrDefault());
+        var binding = symbol.CreateBinding(argumentValues.Cast<string>());
         
         context.AddBindingContext(binding);
         return 0;

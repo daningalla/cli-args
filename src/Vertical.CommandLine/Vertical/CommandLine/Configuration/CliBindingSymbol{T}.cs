@@ -38,12 +38,8 @@ public abstract class CliBindingSymbol<T> : CliBindingSymbol
     public IDefaultValueProvider<T>? DefaultProvider { get; }
 
     /// <inheritdoc />
-    public override IArgumentValueBinding CreateBinding(string? value) =>
-        new SingleArgumentValueBinding<T>(this, value);
-
-    /// <inheritdoc />
-    public override IArgumentValueBinding CreateMultiValueBinding(IEnumerable<string> values) =>
-        new MultiValueArgumentBinding<T>(this, values);
+    public override IArgumentValueBinding CreateBinding(IEnumerable<string> values) =>
+        new ArgumentValueBinding<T>(this, values);
 
     /// <inheritdoc />
     public override bool HasValueConverter => Converter != null;
