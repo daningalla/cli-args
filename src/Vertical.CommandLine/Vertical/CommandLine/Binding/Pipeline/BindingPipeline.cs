@@ -11,11 +11,12 @@ public static class BindingPipeline
 #endif
         new BuildCommandPathTask(),
         new AddBindingSymbolsTask(),
-        new AddDefaultConvertersTask(),
-        new AddCommandPathServicesTask(),
+        new AddValueConverterServicesTask(),
+        new AddValidatorServicesTask(),
         new PrepareSemanticArgumentsTask(),
         new AddOptionValueBindingsTask(),
         new AddArgumentValueBindingsTask(),
+        new AddModelBindingValuesTasks(),
         new PostValidateContextTask()
     };
 

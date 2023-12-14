@@ -41,6 +41,9 @@ public abstract class CliBindingSymbol<T> : CliBindingSymbol
     public override IArgumentValueBindingFactory CreateBindingFactory() => new ArgumentValueBindingFactory<T>();
 
     /// <inheritdoc />
+    public override IValueConverter? GetDefaultConverter() => DefaultValueConverter<T>.Instance;
+
+    /// <inheritdoc />
     public override bool HasConverter => Converter is not null;
 
     /// <inheritdoc />

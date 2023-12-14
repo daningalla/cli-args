@@ -1,4 +1,5 @@
 ﻿using Vertical.CommandLine.Configuration;
+using Vertical.CommandLine.Invocation;
 using Vertical.CommandLine.Syntax;
 
 namespace Vertical.CommandLine.Binding;
@@ -57,6 +58,9 @@ public sealed class BindingContext : IBindingContext
     }
 
     /// <inheritdoc />
+    public void AddModelValue(IModelValue modelValue) => Services.Add(modelValue);
+
+    /// <inheritdoc />
     public void StageBindingSymbols(IEnumerable<CliBindingSymbol> symbols)
     {
         if (_lazyBindingSymbolCollection.IsValueCreated)
@@ -85,6 +89,11 @@ public sealed class BindingContext : IBindingContext
 
     /// <inheritdoc />
     public IEnumerable<IArgumentValueBinding> GetValueBindings() => _argumentValueBindings;
+
+    /// <inheritdoc />
+    public IMappedArgumentProvider CreateArgumentProvider() => new MappedArgumentProvider(
+        Services,
+        GetValueBindings());
 
     /// <inheritdoc />
     public Command InvocationSubject => _invocationPath.Last() ?? throw new InvalidOperationException();

@@ -48,6 +48,11 @@ public class Command : CliSymbol
     /// </summary>
     public List<IValidator> Validators { get; } = new();
 
+    /// <summary>
+    /// Gets a list of application defined model binders.
+    /// </summary>
+    public List<IModelBinder> ModelBinders { get; } = new();
+
     /// <inheritdoc />
     public override string ToString() => '"' + string.Join(" | ", new[] { Id }.Concat(Aliases)) + '"';
 

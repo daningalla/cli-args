@@ -25,6 +25,9 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     /// <inheritdoc />
     public T GetValue<T>(string parameterId)
     {
+        if (Services.TryGetService(out IModelValue<T>? modelValueWrapper))
+            return modelValueWrapper.Value;
+        
         var binding = (IArgumentValueBinding<T>)Bindings[parameterId];
         return binding.ArgumentValues.Single();
     }
@@ -53,7 +56,6 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     private T[] GetValues<T>(string parameterId)
     {
         var binding = (ArgumentValueBinding<T>)Bindings[parameterId];
-
         return binding.ArgumentValues;
     }
 }

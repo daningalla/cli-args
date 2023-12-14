@@ -1,4 +1,5 @@
 ﻿using Vertical.CommandLine.Binding;
+using Vertical.CommandLine.Conversion;
 
 namespace Vertical.CommandLine.Configuration;
 
@@ -45,6 +46,12 @@ public abstract class CliBindingSymbol : CliSymbol
     /// </summary>
     /// <returns><see cref="IArgumentValueBindingFactory"/></returns>
     public abstract IArgumentValueBindingFactory CreateBindingFactory();
+
+    /// <summary>
+    /// Gets the default <see cref="IValueConverter"/> instance for this symbol.
+    /// </summary>
+    /// <returns><see cref="IValueConverter"/> or <c>null</c> if a default converter is not available.</returns>
+    public abstract IValueConverter? GetDefaultConverter();
     
     /// <summary>
     /// Gets whether the symbol defines a value converter.

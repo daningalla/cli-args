@@ -43,16 +43,21 @@ public static class ConfigurationValidator
 
     private static void ValidateConverterServices(IEnumerable<Command> path, ICollection<Exception> exceptions)
     {
+        // Validate each type in defined symbols can be converted from a string argument
+        
         var bindings = path.SelectMany(command => command.Bindings.Select(binding => (command, value: binding)));
-        var converterServiceTypes = new HashSet<Type>(path
+
+        var converterTypes = new HashSet<Type>(path
             .SelectMany(command => command.Converters)
             .Select(converter => converter.ValueType));
+        
         var unsupportedBindings = bindings
             .Where(binding => !binding.value.HasConverter 
-                              && !converterServiceTypes.Contains(binding.value.ValueType)
+                              && !converterTypes.Contains(binding.value.ValueType)
                               && !DefaultValueConverter.CanConvert(binding.value.ValueType));
         
         var typeGroups = unsupportedBindings.GroupBy(binding => binding.value.ValueType);
+        
         if (typeGroups.Any())
         {
             exceptions.Add(ConfigurationExceptions.MissingValueConverters(path, typeGroups.ToArray()));
@@ -61,17 +66,32 @@ public static class ConfigurationValidator
 
     private static void ValidateParameterBindings(IEnumerable<Command> path, ICollection<Exception> exceptions)
     {
+        // Validate each parameter in handlers can be mapped to a binding symbol or is handled
+        // by model binding
+        
         var bindings = path.SelectMany(command => command.Bindings);
         var bindingDictionary = BindingDictionary<CliBindingSymbol>.Create(bindings, item => item);
-
+        var modelBinderValueTypes = new HashSet<Type>();
+        
         foreach (var command in path.Where(command => command.Handler is not null))
         {
             var method = command.Handler!.Method;
             var parameters = method.GetParameters();
             var unbindableParameters = new List<ParameterInfo>();
 
+            foreach (var modelBinder in command.ModelBinders)
+            {
+                modelBinderValueTypes.Add(modelBinder.ValueType);
+            }
+
             foreach (var parameter in parameters.Where(p => p.ParameterType != typeof(CancellationToken)))
             {
+                if (modelBinderValueTypes.Contains(parameter.ParameterType))
+                {
+                    // Mapped by a model binder
+                    continue;
+                }
+                
                 var bindingName = parameter.GetCustomAttribute<BindingAttribute>()?.BindingId
                                   ?? parameter.Name
                                   ?? string.Empty;
@@ -105,6 +125,9 @@ public static class ConfigurationValidator
 
     private static void ValidateHandlerSignatures(IEnumerable<Command> path, ICollection<Exception> exceptions)
     {
+        // Since commands form a chain, every signature must have the same return type
+        // for the Invoke[Async] source generator.
+        
         var handledCommands = path.Where(command => command.Handler is not null);
         var handlerMethods = handledCommands.Select(command => command.Handler!.Method).ToArray();
 
@@ -153,6 +176,8 @@ public static class ConfigurationValidator
 
     private static void ValidateHandlerRequirement(Command command, ICollection<Exception> exceptions)
     {
+        // Commands may not be directly handled (only serve as paths to sub commands).
+        
         var handlerRequired = command.Bindings.Any(binding => binding.Scope is 
             BindingScope.Self or BindingScope.SelfAndDescendents);
 
@@ -194,6 +219,18 @@ public static class ConfigurationValidator
                 continue;
 
             exceptions.Add(ConfigurationExceptions.InvalidIdentifierName(command, identifier));
+        }
+    }
+
+    private static void ValidateBindingIdentifiers(Command command, ICollection<Exception> exceptions)
+    {
+        var validationNames = command
+            .Bindings
+            .SelectMany(binding => binding.Identifiers.Select(name => (binding, name)));
+
+        foreach (var (binding, name) in validationNames)
+        {
+            
         }
     }
 }

@@ -146,7 +146,9 @@ internal static class ConfigurationExceptions
     {
         var message = ReusableStringBuilder.Build(sb =>
         {
-            sb.AppendLine("The following types are unbindable because they do not have value converters defined:");
+            sb.AppendLine("The following types are unbindable because they do not have value converters " +
+                          " or model binders defined:");
+            
             foreach (var group in groups)
             {
                 sb.AppendLine($"\t{group.Key}, defined in:");

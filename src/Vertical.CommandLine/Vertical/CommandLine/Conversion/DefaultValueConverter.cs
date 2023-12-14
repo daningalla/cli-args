@@ -35,7 +35,7 @@ internal static class DefaultValueConverter
             [typeof(Uri)] = () => new ValueConverter<Uri>(str => new Uri(str, UriKind.RelativeOrAbsolute))
         };
 
-    internal static bool CanConvert(Type type) => FactoryDictionary.ContainsKey(type); 
+    internal static bool CanConvert(Type type) => type.IsEnum || FactoryDictionary.ContainsKey(type); 
 
     internal static IValueConverter<T>? GetInstanceOrDefault<T>()
     {
@@ -44,12 +44,5 @@ internal static class DefaultValueConverter
         return targetType.IsEnum
             ? new EnumConverter<T>()
             : (IValueConverter<T>?)FactoryDictionary.GetValueOrDefault(targetType)?.Invoke();
-    }
-    
-    internal static IValueConverter? GetInstanceOrDefault(Type type)
-    {
-        return FactoryDictionary.TryGetValue(type, out var factory)
-            ? factory()
-            : null;
     }
 }

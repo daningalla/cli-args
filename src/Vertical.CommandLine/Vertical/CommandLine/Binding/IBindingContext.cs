@@ -1,10 +1,11 @@
 ﻿using Vertical.CommandLine.Configuration;
+using Vertical.CommandLine.Invocation;
 using Vertical.CommandLine.Syntax;
 
 namespace Vertical.CommandLine.Binding;
 
 /// <summary>
-/// Represents the context uses in the binding pipeline.
+/// Represents an objects that maintains binding state.
 /// </summary>
 public interface IBindingContext
 {
@@ -72,6 +73,12 @@ public interface IBindingContext
     /// <param name="symbol">The symbol being bound.</param>
     /// <param name="values">Zero, one, or more values to bind.</param>
     void AddBindingContext(CliBindingSymbol symbol, IEnumerable<string> values);
+
+    /// <summary>
+    /// Adds a bound model.
+    /// </summary>
+    /// <param name="modelValue">The bound model value.</param>
+    void AddModelValue(IModelValue modelValue);
     
     /// <summary>
     /// Stages the specified binding symbols.
@@ -102,4 +109,10 @@ public interface IBindingContext
     /// </summary>
     /// <returns>Collection of value bindings.</returns>
     IEnumerable<IArgumentValueBinding> GetValueBindings();
+
+    /// <summary>
+    /// Creates an argument provider using the current state of the context.
+    /// </summary>
+    /// <returns><see cref="IMappedArgumentProvider"/></returns>
+    IMappedArgumentProvider CreateArgumentProvider();
 }
