@@ -8,4 +8,9 @@ public interface IArgumentValueBinding<T> : IArgumentValueBinding
     /// Gets the binding symbol.
     /// </summary>
     CliBindingSymbol<T> Symbol { get; }
+    
+    /// <summary>
+    /// Gets the argument values.
+    /// </summary>
+    T[] ArgumentValues { get; }
 }

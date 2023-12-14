@@ -45,4 +45,11 @@ internal static class DefaultValueConverter
             ? new EnumConverter<T>()
             : (IValueConverter<T>?)FactoryDictionary.GetValueOrDefault(targetType)?.Invoke();
     }
+    
+    internal static IValueConverter? GetInstanceOrDefault(Type type)
+    {
+        return FactoryDictionary.TryGetValue(type, out var factory)
+            ? factory()
+            : null;
+    }
 }

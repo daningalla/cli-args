@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using Vertical.CommandLine.Invocation;
 using Vertical.CommandLine.Validation;
 
@@ -12,53 +14,48 @@ public class PipelineValidatorUsageTests
     public void Pipeline_Uses_SymbolValidator()
     {
         // arrange
+        var validator = CreateValidator();
         var command = new RootCommand
         {
-            Bindings = { new Option<int>("--count", validator: CreateValidator(i => i != ThrowToken)) },
-            Validators = { CreateValidator(i => i == ThrowToken) },
+            Bindings = { new Option<int>("--count", validator: validator) },
+            Validators = { CreateValidator() },
             Handler = () => { }
         };
         
         // act/assert
-        var context = InvocationContextBuilder.Create(command, new[] { $"--count={ThrowToken}" });
-        var argProvider = context.ArgumentProvider;
+        _ = InvocationContextBuilder.Create(command, new[] { $"--count={ThrowToken}" });
         
         // assert
-        argProvider
-            .Invoking(x => x.GetValue<int>("--count"))
-            .Should()
-            .Throw<CommandLineException>();
+        validator.Received(1).Validate(Arg.Any<IValidationContext<int>>());
     }
     
     [Fact]
     public void Pipeline_Uses_Command_Validator()
     {
         // arrange
+        var validator = CreateValidator();
         var command = new RootCommand
         {
             Bindings = { new Option<int>("--count") },
-            Validators = { CreateValidator(i => i != ThrowToken) },
+            Validators = { validator },
             Handler = () => { }
         };
         
         // act/assert
-        var context = InvocationContextBuilder.Create(command, new[] { $"--count={ThrowToken}" });
-        var argProvider = context.ArgumentProvider;
+        _ = InvocationContextBuilder.Create(command, new[] { $"--count={ThrowToken}" });
         
         // assert
-        argProvider
-            .Invoking(x => x.GetValue<int>("--count"))
-            .Should()
-            .Throw<CommandLineException>();
+        validator.Received(1).Validate(Arg.Any<IValidationContext<int>>());
     }
 
     [Fact]
     public void Pipeline_Uses_Propagated_Command_Validator()
     {
         // arrange
+        var validator = CreateValidator();
         var command = new RootCommand
         {
-            Validators = { CreateValidator(i => i != ThrowToken) },
+            Validators = { validator },
             Commands =
             {
                 new Command("cmd")
@@ -70,20 +67,17 @@ public class PipelineValidatorUsageTests
         };
         
         // act/assert
-        var context = InvocationContextBuilder.Create(command, new[] { "cmd", $"--count={ThrowToken}" });
-        var argProvider = context.ArgumentProvider;
+        _ = InvocationContextBuilder.Create(command, new[] { "cmd", $"--count={ThrowToken}" });
         
         // assert
-        argProvider
-            .Invoking(x => x.GetValue<int>("--count"))
-            .Should()
-            .Throw<CommandLineException>();
+        validator.Received(1).Validate(Arg.Any<IValidationContext<int>>());
+
     }
 
-    private static IValidator<int> CreateValidator(Func<int, bool> predicate)
+    private static IValidator<int> CreateValidator()
     {
-        return new ValidatorBuilder<int>()
-            .Must(predicate)
-            .Build();
+        var validator = Substitute.For<IValidator<int>>();
+        validator.ServiceType.Returns(typeof(IValidator<int>));
+        return validator;
     }
 }

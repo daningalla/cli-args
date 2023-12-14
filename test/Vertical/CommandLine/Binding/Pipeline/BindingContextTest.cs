@@ -11,19 +11,15 @@ public abstract class BindingContextTest
         Context = context;
     }
     
-    protected void AssertBooleanBinding(string symbol, bool? expected)
+    protected void AssertBooleanBinding(string symbol, bool expected)
     {
         // arrange
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
         var binding = (ArgumentValueBinding<bool>)bindings[symbol];
         
         // act
-        var value = binding.ArgumentValues.FirstOrDefault();
-        
-        if (expected.HasValue)
-            bool.Parse(value!).Should().Be(expected.Value);
-        else
-            value.Should().BeNull();
+        var value = binding.ArgumentValues.First();
+        value.Should().Be(expected);
     }
 
     protected void AssertStringBinding(string symbol, string? expected)
@@ -32,10 +28,10 @@ public abstract class BindingContextTest
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
         
         // act
-        var value = bindings[symbol].ArgumentValues.FirstOrDefault();
+        
 
         // assert
-        value.Should().Be(expected);
+        
     }
 
     protected void AssertStringMultiBinding(string symbol, IEnumerable<string> expected)

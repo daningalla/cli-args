@@ -48,7 +48,7 @@ public static class ConfigurationValidator
             .SelectMany(command => command.Converters)
             .Select(converter => converter.ValueType));
         var unsupportedBindings = bindings
-            .Where(binding => !binding.value.HasValueConverter 
+            .Where(binding => !binding.value.HasConverter 
                               && !converterServiceTypes.Contains(binding.value.ValueType)
                               && !DefaultValueConverter.CanConvert(binding.value.ValueType));
         

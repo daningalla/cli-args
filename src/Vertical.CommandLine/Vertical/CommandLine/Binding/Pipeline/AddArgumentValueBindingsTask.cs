@@ -32,9 +32,7 @@ public sealed class AddArgumentValueBindingsTask : IBindingTask
                 })
                 .ToArray();
 
-            var binding = symbol.CreateBinding(argumentValues);
-            
-            context.AddBindingContext(binding);
+            context.AddBindingContext(symbol, argumentValues);
         }
     }
 

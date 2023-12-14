@@ -69,8 +69,9 @@ public interface IBindingContext
     /// <summary>
     /// Adds a binding context.
     /// </summary>
-    /// <param name="binding">The context that represents a binding between a symbol and a semantic argument.</param>
-    void AddBindingContext(IArgumentValueBinding binding);
+    /// <param name="symbol">The symbol being bound.</param>
+    /// <param name="values">Zero, one, or more values to bind.</param>
+    void AddBindingContext(CliBindingSymbol symbol, IEnumerable<string> values);
     
     /// <summary>
     /// Stages the specified binding symbols.

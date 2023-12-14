@@ -21,7 +21,7 @@ public class MappedArgumentProviderTests
     public void GetValue_Returns_Null() => AssertStringValue(null);
 
     [Fact]
-    public void GetValueArray_Returns_Expected() => AssertCollection((p, arg) => p.GetValueArray<string>(arg),
+    public void GetValueArray_Returns_Expected() => AssertCollection((p, arg) => p.GetValueArray<string>(arg), 
         typeof(string[]),
         "red", "green", "blue");
 

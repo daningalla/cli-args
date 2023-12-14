@@ -14,9 +14,6 @@ public class Switch : Option<bool>
     /// <param name="scope">The scope applied to this symbol.</param>
     /// <param name="converter">An object that converts string argument values to the symbol value type.</param>
     /// <param name="validator">An object that validates binding values.</param>
-    /// <param name="defaultProvider">
-    /// function that provides a default value if the symbol is not mapped to a program argument.
-    /// </param>
     /// <exception cref="ArgumentException"><paramref name="id"/> is null or empty.</exception>
     /// <exception cref="FormatException"><paramref name="id"/> is not a valid identifier.</exception>
     /// <exception cref="FormatException"><paramref name="aliases"/> contains an invalid identifier.</exception>
@@ -25,14 +22,13 @@ public class Switch : Option<bool>
         string[]? aliases = null, 
         BindingScope scope = BindingScope.Self,
         IValueConverter<bool>? converter = null,
-        IValidator<bool>? validator = null,
-        Func<bool>? defaultProvider = null) 
+        IValidator<bool>? validator = null)
         : base(
             id, 
             aliases, 
             arity: Arity.ZeroOrOne, 
             scope: scope, 
-            converter: converter, validator: validator, defaultProvider: defaultProvider ?? (() => true))
+            converter: converter, validator: validator, defaultProvider: () => true)
     {
     }
 

@@ -38,11 +38,10 @@ public abstract class CliBindingSymbol<T> : CliBindingSymbol
     public IDefaultValueProvider<T>? DefaultProvider { get; }
 
     /// <inheritdoc />
-    public override IArgumentValueBinding CreateBinding(IEnumerable<string> values) =>
-        new ArgumentValueBinding<T>(this, values);
+    public override IArgumentValueBindingFactory CreateBindingFactory() => new ArgumentValueBindingFactory<T>();
 
     /// <inheritdoc />
-    public override bool HasValueConverter => Converter != null;
+    public override bool HasConverter => Converter is not null;
 
     /// <inheritdoc />
     public override string ToString() => string.Join(" | ", Identifiers);

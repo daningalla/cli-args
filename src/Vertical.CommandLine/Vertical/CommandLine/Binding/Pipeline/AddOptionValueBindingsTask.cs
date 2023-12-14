@@ -44,7 +44,7 @@ public class AddOptionValueBindingsTask : IBindingTask
             ? new[] { value }
             : Enumerable.Empty<string>();
         
-        context.AddBindingContext(symbol.CreateBinding(bindingValues));
+        context.AddBindingContext(symbol, bindingValues);
         return 0;
     }
 
@@ -58,9 +58,7 @@ public class AddOptionValueBindingsTask : IBindingTask
             throw CommandLineException.OptionMissingOperand(symbol);
         }
 
-        var binding = symbol.CreateBinding(argumentValues.Cast<string>());
-        
-        context.AddBindingContext(binding);
+        context.AddBindingContext(symbol, argumentValues.Cast<string>());
         return 0;
     }
 

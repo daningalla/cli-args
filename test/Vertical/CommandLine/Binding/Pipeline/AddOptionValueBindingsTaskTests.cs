@@ -13,7 +13,7 @@ public class AddOptionValueBindingsTaskTests : BindingContextTest
     public void Invoke_Adds_Simple_Switch_Binding()
     {
         // assert
-        AssertBooleanBinding("-a", null);
+        AssertBooleanBinding("-a", true);
     }
 
     [Fact]

@@ -41,14 +41,13 @@ public abstract class CliBindingSymbol : CliSymbol
     public BindingScope Scope { get; }
 
     /// <summary>
-    /// Creates a multi value argument binding.
+    /// Creates an argument value binding factory.
     /// </summary>
-    /// <param name="values">Binding value.</param>
-    /// <returns><see cref="IArgumentValueBinding"/></returns>
-    public abstract IArgumentValueBinding CreateBinding(IEnumerable<string> values);
+    /// <returns><see cref="IArgumentValueBindingFactory"/></returns>
+    public abstract IArgumentValueBindingFactory CreateBindingFactory();
     
     /// <summary>
-    /// Gets whether the binding symbol has a defined value converter.
+    /// Gets whether the symbol defines a value converter.
     /// </summary>
-    public abstract bool HasValueConverter { get; }
+    public abstract bool HasConverter { get; }
 }

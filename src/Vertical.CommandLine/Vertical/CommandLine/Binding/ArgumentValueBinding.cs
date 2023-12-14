@@ -4,7 +4,7 @@ namespace Vertical.CommandLine.Binding;
 
 public class ArgumentValueBinding<T> : IArgumentValueBinding<T>
 {
-    internal ArgumentValueBinding(CliBindingSymbol<T> symbol, IEnumerable<string> argumentValues)
+    internal ArgumentValueBinding(CliBindingSymbol<T> symbol, T[] argumentValues)
     {
         Symbol = symbol;
         ArgumentValues = argumentValues;
@@ -22,5 +22,5 @@ public class ArgumentValueBinding<T> : IArgumentValueBinding<T>
     /// <inheritdoc />
     public CliBindingSymbol<T> Symbol { get; }
 
-    public IEnumerable<string> ArgumentValues { get; }
+    public T[] ArgumentValues { get; }
 }

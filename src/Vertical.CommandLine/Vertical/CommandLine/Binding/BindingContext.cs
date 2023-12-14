@@ -49,7 +49,12 @@ public sealed class BindingContext : IBindingContext
     public void AddInvocationArgumentValues(IEnumerable<string> arguments) => InvocationArgumentValues = arguments.ToArray();
 
     /// <inheritdoc />
-    public void AddBindingContext(IArgumentValueBinding binding) => _argumentValueBindings.Add(binding);
+    public void AddBindingContext(CliBindingSymbol symbol, IEnumerable<string> values)
+    {
+        var bindingFactory = symbol.CreateBindingFactory();
+        
+        _argumentValueBindings.Add(bindingFactory.CreateBinding(symbol, Services, values));
+    }
 
     /// <inheritdoc />
     public void StageBindingSymbols(IEnumerable<CliBindingSymbol> symbols)

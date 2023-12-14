@@ -21,10 +21,5 @@ public interface IArgumentValueBinding
     /// Gets the base CLI symbol.
     /// </summary>
     CliSymbol BaseSymbol { get; }
-    
-    /// <summary>
-    /// Gets the argument value collection.
-    /// </summary>
-    IEnumerable<string> ArgumentValues { get; }
 }
 
