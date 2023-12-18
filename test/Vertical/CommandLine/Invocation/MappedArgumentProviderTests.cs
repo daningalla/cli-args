@@ -8,8 +8,8 @@ public class MappedArgumentProviderTests
     {
         Bindings =
         {
-            new Option("--value"),
-            new Option("--collection", arity: Arity.ZeroOrMany )
+            new Option<string>("--value"),
+            new Option<string>("--collection", arity: Arity.ZeroOrMany )
         },
         Handler = () => { }
     };

@@ -35,12 +35,12 @@ public class AddArgumentValueBindingsTaskTests : BindingContextTest
             Bindings =
             {
                 new Switch("-d"),
-                new Option("--config", arity: Arity.ZeroOrMany),
+                new Option<string>("--config", arity: Arity.ZeroOrMany),
                 
                 // True test cases
-                new Argument("shape", arity: Arity.One),
-                new Argument("size", arity: Arity.One),
-                new Argument("colors", arity: Arity.ZeroOrMany)
+                new Argument<string>("shape", arity: Arity.One),
+                new Argument<string>("size", arity: Arity.One),
+                new Argument<string>("colors", arity: Arity.ZeroOrMany)
             },
             Handler = () => { }
         };

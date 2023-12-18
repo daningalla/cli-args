@@ -12,7 +12,7 @@ public class CliSymbolExtensionsTests
     public void IsMatchToAnyType_Returns_Expected(string id, string[] aliases, string parameter, bool expected)
     {
         // arrange
-        var symbol = new Option(id, aliases);
+        var symbol = new Option<string>(id, aliases);
         
         // act/assert
         symbol.IsMatchToAnyIdentifier(parameter).Should().Be(expected);
@@ -31,7 +31,7 @@ public class CliSymbolExtensionsTests
     public void Validate_Arity_Returns_Expected(int minCount, int? maxCount, int argCount, bool throws)
     {
         // arrange/act
-        var symbol = new Argument("arg", new Arity(minCount, maxCount));
+        var symbol = new Argument<string>("arg", new Arity(minCount, maxCount));
         
         // assert
         if (throws)

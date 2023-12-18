@@ -44,7 +44,7 @@ public class SemanticArgumentCollectionTests
     public void RemoveOptionArguments_Returns_Tuple_With_Speculative_Operand()
     {
         // arrange/act
-        var pairs = _instance.RemoveOptionArguments(new Option("--size"));
+        var pairs = _instance.RemoveOptionArguments(new Option<string>("--size"));
         
         // assert
         pairs.Should().HaveCount(1);
@@ -56,7 +56,7 @@ public class SemanticArgumentCollectionTests
     public void RemoveOptionArguments_Returns_Tuple_With_No_Speculative_Operand()
     {
         // arrange/act
-        var pairs = _instance.RemoveOptionArguments(new Option("--color"));
+        var pairs = _instance.RemoveOptionArguments(new Option<string>("--color"));
         
         // assert
         pairs.Should().HaveCount(1);
@@ -70,8 +70,8 @@ public class SemanticArgumentCollectionTests
     public void isEmpty_Returns_True_When_All_Arguments_Removed()
     {
         // act
-        _instance.RemoveOptionArguments(new Option("--size"));
-        _instance.RemoveOptionArguments(new Option("--color"));
+        _instance.RemoveOptionArguments(new Option<string>("--size"));
+        _instance.RemoveOptionArguments(new Option<string>("--color"));
         _instance.RemoveArgument(_instance.First(arg => arg.Text == Args[0]));
         _instance.RemoveArgument(_instance.First(arg => arg.Text == Args[3]));
         

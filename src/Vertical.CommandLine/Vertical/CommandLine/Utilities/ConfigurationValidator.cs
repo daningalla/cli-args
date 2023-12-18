@@ -17,25 +17,38 @@ public static class ConfigurationValidator
         /// <inheritdoc />
         public int GetHashCode(Exception obj) => obj.Message.GetHashCode();
     }
-    
+
     public static IReadOnlyCollection<Exception> Validate(RootCommand rootCommand)
     {
         var exceptions = new HashSet<Exception>(new ExceptionComparer());
-        var pathVisitor = new PathVisitor<Command>(command => command.Commands, path =>
-            ValidateCommandPath(path, exceptions));
+        var commands = new HashSet<Command>();
+        var visitor = new PathVisitor<Command>(command => command.Commands, path =>
+        {
+            foreach (var command in path.Where(commands.Add))
+            {
+                ValidateCommand(command, exceptions);
+            }
+            ValidateCommandPath(path, exceptions);
+        });
         
-        pathVisitor.Visit(rootCommand);
+        visitor.Visit(rootCommand);
+        
+        ValidateHandlerSignatures(commands, exceptions);
 
         return exceptions;
     }
 
+    private static void ValidateCommand(Command command, ICollection<Exception> exceptions)
+    {
+        ValidateCommandIdentifiers(command, exceptions);
+        ValidateUniqueChildCommandIdentifiers(command, exceptions);
+        ValidateHandlerRequirement(command, exceptions);
+        ValidateArgumentArityConfiguration(command, exceptions);
+        ValidateBindingIdentifiers(command, exceptions);
+    }
+
     private static void ValidateCommandPath(IEnumerable<Command> path, ICollection<Exception> exceptions)
     {
-        foreach (var command in path)
-        {
-            ValidateCommand(command, exceptions);
-        }
-
         ValidateHandlerSignatures(path, exceptions);
         ValidateParameterBindings(path, exceptions);
         ValidateConverterServices(path, exceptions);
@@ -123,17 +136,17 @@ public static class ConfigurationValidator
         return binding.ValueType.IsAssignableFrom(parameter.ParameterType);
     }
 
-    private static void ValidateHandlerSignatures(IEnumerable<Command> path, ICollection<Exception> exceptions)
+    private static void ValidateHandlerSignatures(IEnumerable<Command> commands, ICollection<Exception> exceptions)
     {
         // Since commands form a chain, every signature must have the same return type
         // for the Invoke[Async] source generator.
         
-        var handledCommands = path.Where(command => command.Handler is not null);
+        var handledCommands = commands.Where(command => command.Handler is not null);
         var handlerMethods = handledCommands.Select(command => command.Handler!.Method).ToArray();
 
         if (handlerMethods.Length == 0)
         {
-            exceptions.Add(ConfigurationExceptions.NoCommandHandlerInPath(path));
+            exceptions.Add(ConfigurationExceptions.NoCommandHandlerInPath(commands));
             return;
         }
 
@@ -146,14 +159,6 @@ public static class ConfigurationValidator
         {
             exceptions.Add(ConfigurationExceptions.MismatchedHandlerReturnType(handledCommands));
         }
-    }
-
-    private static void ValidateCommand(Command command, ICollection<Exception> exceptions)
-    {
-        ValidateCommandIdentifiers(command, exceptions);
-        ValidateUniqueChildCommandIdentifiers(command, exceptions);
-        ValidateHandlerRequirement(command, exceptions);
-        ValidateArgumentArityConfiguration(command, exceptions);
     }
 
     private static void ValidateArgumentArityConfiguration(Command command, ICollection<Exception> exceptions)
@@ -224,13 +229,21 @@ public static class ConfigurationValidator
 
     private static void ValidateBindingIdentifiers(Command command, ICollection<Exception> exceptions)
     {
-        var validationNames = command
+        var bindingNames = command
             .Bindings
             .SelectMany(binding => binding.Identifiers.Select(name => (binding, name)));
 
-        foreach (var (binding, name) in validationNames)
+        foreach (var (binding, name) in bindingNames)
         {
+            var isValid = binding.SymbolType == CliSymbolType.Argument
+                ? NamingAnalysis.IsValidNonPrefixedIdentifier(name)
+                : NamingAnalysis.IsValidPrefixedIdentifier(name);
+
+            if (isValid) continue;
             
+            exceptions.Add(ConfigurationExceptions.InvalidIdentifierName(
+                binding,
+                name));
         }
     }
 }

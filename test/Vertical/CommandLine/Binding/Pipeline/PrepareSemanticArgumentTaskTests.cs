@@ -44,9 +44,9 @@ public class PrepareSemanticArgumentTaskTests : BindingContextTest
                         {
                             Bindings =
                             {
-                                new Argument("project"),
-                                new Option("--config"),
-                                new Option("-s")
+                                new Argument<string>("project"),
+                                new Option<string>("--config"),
+                                new Option<string>("-s")
                             },
                             Handler = () => { }
                         }

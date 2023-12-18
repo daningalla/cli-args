@@ -21,6 +21,21 @@ public class ConfigurationValidatorTests
         AssertHasExceptions(command);
     }
 
+    [Theory]
+    [InlineData("option")]
+    public void Validate_Adds_Option_Symbol_Identifier_Exception(string symbolId)
+    {
+        // arrange
+        var command = new RootCommand
+        {
+            Bindings = { new Option<string>(symbolId) },
+            Handler = () => { }
+        };
+        
+        // assert
+        AssertHasExceptions(command);
+    }
+
     [Fact]
     public void Validate_Adds_Command_Unique_Identifiers_Exception()
     {
@@ -45,7 +60,7 @@ public class ConfigurationValidatorTests
         // arrange
         var command = new RootCommand
         {
-            Bindings = { new Argument("project", scope: BindingScope.Self) }
+            Bindings = { new Argument<string>("project", scope: BindingScope.Self) }
         };
         
         // assert
@@ -60,8 +75,8 @@ public class ConfigurationValidatorTests
         {
             Bindings =
             {
-                new Argument("colors"),
-                new Argument("path", Arity.One)
+                new Argument<string>("colors"),
+                new Argument<string>("path", Arity.One)
             },
             Handler = () => { }
         };

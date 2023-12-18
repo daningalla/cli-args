@@ -62,6 +62,11 @@ public static class NamingAnalysis
         return true;
     }
 
+    public static bool IsValidPrefixedIdentifier(ReadOnlySpan<char> span) =>
+        IsValidPosixIdentifier(span) ||
+        IsValidGnuIdentifier(span) ||
+        IsValidMicrosoftIdentifier(span);
+
     public static bool IsValidNonPrefixedIdentifier(ReadOnlySpan<char> span)
     {
         if (span.Length == 0) return false;

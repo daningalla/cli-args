@@ -101,12 +101,12 @@ public class AddOptionValueBindingsTaskTests : BindingContextTest
                 new Switch("--operand-true"),
                 new Switch("--operand-false"),
                 new Switch("--default"),
-                new Option("--default-option"),
-                new Option("--arg-option"),
-                new Option("--operand-option"),
-                new Option("--zero-or-many-none", arity: Arity.ZeroOrMany),
-                new Option("--zero-or-many-one", arity: Arity.ZeroOrMany),
-                new Option("--zero-or-many-three", arity: Arity.ZeroOrMany),
+                new Option<string>("--default-option"),
+                new Option<string>("--arg-option"),
+                new Option<string>("--operand-option"),
+                new Option<string>("--zero-or-many-none", arity: Arity.ZeroOrMany),
+                new Option<string>("--zero-or-many-one", arity: Arity.ZeroOrMany),
+                new Option<string>("--zero-or-many-three", arity: Arity.ZeroOrMany),
             },
             Handler = () => { }
         };

@@ -19,6 +19,8 @@ public abstract class BindingContextTest
         
         // act
         var value = binding.ArgumentValues.First();
+        
+        // assert
         value.Should().Be(expected);
     }
 
@@ -26,19 +28,22 @@ public abstract class BindingContextTest
     {
         // arrange
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
-        
+        var binding = (ArgumentValueBinding<string>)bindings[symbol];
+
         // act
-        
+        var value = binding.ArgumentValues.First();
 
         // assert
-        
+        value.Should().Be(expected);
     }
 
     protected void AssertStringMultiBinding(string symbol, IEnumerable<string> expected)
     {
+        // arrange/act
         var bindings = Context.GetValueBindings().ToDictionary(binding => binding.BindingId);
         var binding = (ArgumentValueBinding<string>)bindings[symbol];
 
+        // assert
         binding.ArgumentValues.Should().Equal(expected);
     }
 }
