@@ -41,4 +41,14 @@ internal static class NamingUtilities
         var name = sb.ToString();
         return name;
     }
+
+    internal static string ToCamelCase(string str)
+    {
+        return str.Length switch
+        {
+            1 when char.IsUpper(str[0]) => char.ToLower(str[0]).ToString(),
+            > 1 when char.IsUpper(str[0]) => $"{char.ToLower(str[0])}{str[1..]}",
+            _ => str
+        };
+    }
 }

@@ -22,5 +22,18 @@ public class ArgumentValueBinding<T> : IArgumentValueBinding<T>
     /// <inheritdoc />
     public CliBindingSymbol<T> Symbol { get; }
 
+    /// <inheritdoc />
     public T[] ArgumentValues { get; }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var valueString = ArgumentValues switch
+        {
+            { Length: 0 } => "(none)",
+            { Length: 1 } => $"{ArgumentValues[0]}",
+            _ => $"[{string.Join(',', ArgumentValues)}]"
+        };
+        return $"{Symbol.Id} = {valueString}";
+    }
 }
