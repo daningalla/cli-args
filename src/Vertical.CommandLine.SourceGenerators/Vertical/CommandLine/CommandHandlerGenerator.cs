@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Vertical.CommandLine;
 
 [Generator]
-public sealed class CommandHandlerGenerator : IIncrementalGenerator
+public sealed class  CommandHandlerGenerator : IIncrementalGenerator
 {
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -37,45 +37,10 @@ public sealed class CommandHandlerGenerator : IIncrementalGenerator
             {
                 prodContext.ReportDiagnostic(diagnostic);
             }
-            var sourceContent = SourceBuilder.Build(referenceHandlers, diagnostics.Count > 0);
+            
+            var sourceContent = HandlerSourceBuilder.Build(referenceHandlers, diagnostics.Count > 0);
             prodContext.AddSource(Constants.FileNameHint, sourceContent);
         });
-    }
-
-    private static void PostValidateProviderValueSource(
-        HandlerMetadata[] handlers,
-        ICollection<Diagnostic> diagnostics)
-    {
-        if (handlers.Count(handler => handler.IsRootCommand) > 1)
-        {
-            diagnostics.Add(Diagnostics.Vcl_002());
-        }
-
-        var returnTypeHashSet = new HashSet<ITypeSymbol>(
-            handlers.Select(handler => handler.ReturnType),
-            SymbolEqualityComparer.IncludeNullability);
-
-        if (returnTypeHashSet.Count > 1)
-        {
-            diagnostics.Add(Diagnostics.Vcl_003(handlers));
-        }
-
-        var uniqueCommandIds = handlers
-            .Select(handler => handler.CommandId)
-            .GroupBy(handler => handler)
-            .Select(grouping => new
-            {
-                grouping.Key,
-                Count = grouping.Count()
-            })
-            .Where(item => item.Count > 1)
-            .Select(item => item.Key)
-            .ToArray();
-
-        if (uniqueCommandIds.Length > 0)
-        {
-            diagnostics.Add(Diagnostics.Vcl_004(uniqueCommandIds));
-        }
     }
 
     private static bool IsHandlerAssignmentSyntax(SyntaxNode node)
@@ -135,6 +100,42 @@ public sealed class CommandHandlerGenerator : IIncrementalGenerator
             isRootCommand,
             handlerMethodSymbol,
             parameters);
+    }
+
+    private static void PostValidateProviderValueSource(
+        HandlerMetadata[] handlers,
+        ICollection<Diagnostic> diagnostics)
+    {
+        if (handlers.Count(handler => handler.IsRootCommand) > 1)
+        {
+            diagnostics.Add(Diagnostics.Vcl_002());
+        }
+
+        var returnTypeHashSet = new HashSet<ITypeSymbol>(
+            handlers.Select(handler => handler.ReturnType),
+            SymbolEqualityComparer.IncludeNullability);
+
+        if (returnTypeHashSet.Count > 1)
+        {
+            diagnostics.Add(Diagnostics.Vcl_003(handlers));
+        }
+
+        var uniqueCommandIds = handlers
+            .Select(handler => handler.CommandId)
+            .GroupBy(handler => handler)
+            .Select(grouping => new
+            {
+                grouping.Key,
+                Count = grouping.Count()
+            })
+            .Where(item => item.Count > 1)
+            .Select(item => item.Key)
+            .ToArray();
+
+        if (uniqueCommandIds.Length > 0)
+        {
+            diagnostics.Add(Diagnostics.Vcl_004(uniqueCommandIds));
+        }
     }
 
     private static IMethodSymbol? GetHandlerImplementationMethodSymbol(

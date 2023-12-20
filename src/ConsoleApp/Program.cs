@@ -1,47 +1,50 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
+using ConsoleApp;
 using Vertical.CommandLine;
-using Vertical.CommandLine.Validation;
 
-Console.WriteLine("Hello, World!");
+var pushCommand = new Command("push")
+{
+    Bindings =
+    {
+        new Argument<FileInfo>("root"),
+        new Switch("--disable-buffering"),
+        new Switch("--interactive"),
+        new Option<string?>("--api-key", new[]{"-k"}),
+        new Option<string?>("--source", new[]{"-s"}, defaultProvider: () => "/usr/local/.nuget/packages"),
+        new Switch("--skip-duplicates"),
+        new Option<TimeSpan?>("--timeout")
+    },
+    Handler = async (PushArguments model, CancellationToken cancellationToken) =>
+    {
+        await Task.CompletedTask;
+        Console.WriteLine($"Pushing {model.Root} to {model.Source}");
+    },
+    ModelBinders = { new PushArgumentsBinder() }
+};
 
-var command = new RootCommand
+var rootCommand = new RootCommand
 {
     Commands =
     {
-        new Command("build")
+        new Command("nuget")
         {
-            Handler = async (
-                FileInfo project, 
-                bool noRestore,
-                string source,
-                DirectoryInfo? outputPath,
-                CancellationToken cancellationToken) =>
-            {
-                await Task.CompletedTask;
-                return 0;
-            },
-            Bindings =
-            {
-                new Argument<FileInfo>("project", arity: Arity.One),
-                new Switch("--no-restore"),
-                new Option<string>("--source", validator: Validator.Build<string>(rules => rules.MinimumLength(5))),
-                new Option<DirectoryInfo>("--output-path")
-            }
+            Commands = { pushCommand }
         }
     }
 };
 
-args = new[]
-{
-    "build",
-    "Vertical.CommandLine.csproj",
-    "--no-restore",
-    "--source=$PROFILE/.nuget/packages"
-};
-
 try
 {
-    await command.InvokeAsync(args, CancellationToken.None);
+    args = new[]
+    {
+        "nuget",
+        "push",
+        "/usr/src/vertical.commandline.csproj",
+        "--api-key=annsiju9889792hkjhdb82730i2hj9j292oth939",
+        "--skip-duplicates"
+    };
+    await rootCommand.InvokeAsync(args, CancellationToken.None);
 }
 catch (CommandLineException exception)
 {

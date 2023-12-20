@@ -2,7 +2,7 @@
 
 namespace Vertical.CommandLine.Binding;
 
-public abstract class ModelBinder<T> : IModelBinder
+public class ModelBinder<T> : IModelBinder
 {
     /// <inheritdoc />
     public Type ValueType => typeof(T);
@@ -13,5 +13,8 @@ public abstract class ModelBinder<T> : IModelBinder
     /// <inheritdoc />
     public IModelValue BindInstanceBase(IMappedArgumentProvider argumentProvider) => BindInstance(argumentProvider);
 
-    protected abstract IModelValue<T> BindInstance(IMappedArgumentProvider argumentProvider);
+    protected virtual IModelValue<T> BindInstance(IMappedArgumentProvider argumentProvider)
+    {
+        throw new NotImplementedException("Model binding is not implemented.");
+    }
 }

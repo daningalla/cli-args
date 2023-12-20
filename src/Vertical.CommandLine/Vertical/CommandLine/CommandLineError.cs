@@ -10,5 +10,6 @@ public enum CommandLineError
     MinimumArityNotMet,
     MaximumArityExceeded,
     InvalidArgument,
+    InvalidCommand,
     MissingOperand
 }

@@ -8,7 +8,7 @@ public interface IInvocationContext
     /// <summary>
     /// Gets the handler to invoke that contains the application's logic for the selected command.
     /// </summary>
-    Delegate Handler { get; }
+    Delegate? Handler { get; }
     
     /// <summary>
     /// Gets the command id.

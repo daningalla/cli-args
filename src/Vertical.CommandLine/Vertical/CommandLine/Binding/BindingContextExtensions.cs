@@ -11,6 +11,12 @@ internal static class BindingContextExtensions
         var argumentProvider = new MappedArgumentProvider(
             context.Services,
             context.GetValueBindings());
+
+        if (subject.Handler == null)
+        {
+            // Application arguments did not match a valid command
+            throw CommandLineException.InvalidCommand(subject);
+        }
         
         return new InvocationContext
         {

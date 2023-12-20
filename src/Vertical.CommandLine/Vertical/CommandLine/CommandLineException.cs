@@ -175,4 +175,22 @@ public class CommandLineException : Exception
             (SymbolKey, context.Symbol),
             (AttemptedValueKey, context.AttemptedValue!));
     }
+
+    public static Exception InvalidCommand(Command subject)
+    {
+        var message = ReusableStringBuilder.Build(sb =>
+        {
+            sb.AppendLine("Invalid command. Expected one of the following:");
+            
+            foreach (var command in subject.Commands.OrderBy(cmd => cmd.Id))
+            {
+                var identifierString = string.Join(", ", command.Identifiers);
+                sb.AppendLine($"  > {identifierString}");
+            }
+        });
+
+        return Create(
+            CommandLineError.InvalidCommand,
+            message);
+    }
 }

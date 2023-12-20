@@ -1,8 +1,8 @@
 ﻿namespace Vertical.CommandLine.Binding;
 
-internal sealed class ModelValue<T> : IModelValue<T>
+public sealed class ModelValue<T> : IModelValue<T>
 {
-    internal ModelValue(T value)
+    public ModelValue(T value)
     {
         Value = value;
     }

@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine;
 
-public enum ParameterCollectionType
+public enum CollectionType
 {
     None,
     Array,
