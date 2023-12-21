@@ -102,7 +102,6 @@ public static class ConfigurationValidator
                 if (modelBinderValueTypes.Contains(parameter.ParameterType))
                 {
                     // Mapped by a model binder
-                    ValidateModelBinder(parameter.ParameterType, bindingDictionary, exceptions);
                     continue;
                 }
                 
@@ -130,61 +129,6 @@ public static class ConfigurationValidator
                 method,
                 unbindableParameters));
         }        
-    }
-
-    private static void ValidateModelBinder(
-        Type modelType,
-        BindingDictionary<CliBindingSymbol> bindings,
-        ICollection<Exception> exceptions)
-    {
-        var constructors = modelType
-            .GetConstructors()
-            .Where(ctor =>
-            {
-                var parameters = ctor.GetParameters();
-                return !(parameters.Length == 1 && parameters[0].ParameterType == ctor.DeclaringType);
-            })
-            .ToArray();
-
-        if (constructors.Length > 1)
-        {
-            exceptions.Add(ConfigurationExceptions.BindingModelHasNoCandidateConstructor(modelType));
-            return;
-        }
-
-        var constructor = constructors.FirstOrDefault();
-        if (constructor != null)
-        {
-            var parameters = constructor.GetParameters();
-            foreach (var parameter in parameters)
-            {
-                var bindingId = parameter.GetCustomAttribute<BindingAttribute>()?.BindingId
-                                ?? parameter.Name
-                                ?? string.Empty;
-
-                if (!bindings.ContainsKey(bindingId))
-                {
-                    exceptions.Add(ConfigurationExceptions.ModelHasUnbindableConstructorParameter(
-                        modelType, constructor, parameter));
-                }
-            }
-        }
-
-        var properties = modelType
-            .GetProperties()
-            .Where(property => property is { CanWrite: true });
-
-        foreach (var property in properties)
-        {
-            var bindingId = property.GetCustomAttribute<BindingAttribute>()?.BindingId
-                            ?? NamingUtilities.ToCamelCase(property.Name);
-            
-            if (!bindings.ContainsKey(bindingId))
-            {
-                exceptions.Add(ConfigurationExceptions.ModelHasUnbindableProperty(
-                    modelType, property, bindingId));
-            }
-        }
     }
 
     private static bool IsParameterCompatibleWithSymbolType(ParameterInfo parameter, CliBindingSymbol binding)
@@ -240,7 +184,7 @@ public static class ConfigurationValidator
         // Commands may not be directly handled (only serve as paths to sub commands).
         
         var handlerRequired = command.Bindings.Any(binding => binding.Scope is 
-            BindingScope.Self or BindingScope.SelfAndDescendents);
+            BindingScope.Self or BindingScope.SelfAndDescendants);
 
         if (handlerRequired && command.Handler is null)
         {

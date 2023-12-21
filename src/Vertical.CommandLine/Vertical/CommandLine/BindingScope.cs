@@ -14,10 +14,10 @@ public enum BindingScope
     /// Indicates the argument, option, or switch applies to the command or sub-commands in which it is
     /// defined.
     /// </summary>
-    SelfAndDescendents,
+    SelfAndDescendants,
     
     /// <summary>
     /// Indicates the argument, option, or switch applies to sub-commands of the command in which it is defined.
     /// </summary>
-    Descendents
+    Descendants
 }

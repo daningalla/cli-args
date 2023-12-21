@@ -41,7 +41,7 @@ internal static class GeneratedBindingSourceBuilder
 
     private static void WriteClassBody(CSharpFormatter cs, GeneratedBindingMetadata metadata, string modelTypeName)
     {
-        cs.AppendLine($"protected override IModelValue<{modelTypeName}> BindInstance(IMappedArgumentProvider argumentProvider)");
+        cs.AppendLine($"protected override {modelTypeName} BindInstance(IMappedArgumentProvider argumentProvider)");
         cs.AppendBlock(inner => WriteBindInstanceBody(inner, metadata, modelTypeName));
     }
 
@@ -59,7 +59,7 @@ internal static class GeneratedBindingSourceBuilder
             .ToArray();
         var handledParameters = new HashSet<string>();
         
-        cs.Append($"var boundInstance = new {modelTypeName}(");
+        cs.Append($"var instance = new {modelTypeName}(");
 
         if (constructorParams.Length > 0)
         {
@@ -103,7 +103,7 @@ internal static class GeneratedBindingSourceBuilder
         }
 
         cs.AppendLine();
-        cs.AppendLine($"return new ModelValue<{modelTypeName}>(boundInstance);");
+        cs.AppendLine($"return instance;");
     }
 
     private static bool IsRecordCopyConstructor(IMethodSymbol constructor)

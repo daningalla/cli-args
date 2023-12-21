@@ -84,12 +84,12 @@ internal static class HandlerSourceBuilder
         cs.AppendLine(template.IsAsyncTask ? " InvokeAsync(" : " Invoke(");
         cs.AppendIndented(inner =>
         {
-            inner.AppendLine("this Vertical.CommandLine.RootCommand rootCommand,");
-            inner.Append("System.Collections.Generic.IEnumerable<string> args");
+            inner.AppendLine("this RootCommand rootCommand,");
+            inner.Append("IEnumerable<string> args");
             if (template.IsAsyncTask)
             {
                 inner.AppendLine(",");
-                inner.AppendLine("System.Threading.CancellationToken cancellationToken)");
+                inner.AppendLine("CancellationToken cancellationToken)");
                 return;
             }
             inner.AppendLine(")");
@@ -170,7 +170,7 @@ internal static class HandlerSourceBuilder
         cs.AppendLine(handler.IsAsyncTask ? "Async(" : "(");
         cs.AppendIndented(inner =>
         {
-            inner.AppendLine("Vertical.CommandLine.Invocation.IInvocationContext context)");
+            inner.AppendLine("IInvocationContext context)");
         });
         cs.AppendBlock(inner => WriteCommandInvocationMethodBody(handler, inner));
     }

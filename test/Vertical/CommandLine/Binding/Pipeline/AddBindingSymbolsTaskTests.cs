@@ -69,13 +69,13 @@ public class AddBindingSymbolsTaskTests
         .AddCase(
             new RootCommand
             {
-                Bindings = { new Option<string>("--1", scope: BindingScope.Descendents) },
+                Bindings = { new Option<string>("--1", scope: BindingScope.Descendants) },
                 Handler = () => { },
                 Commands =
                 {
                     new Command("child")
                     {
-                        Bindings = { new Option<string>("--2", scope: BindingScope.SelfAndDescendents) },
+                        Bindings = { new Option<string>("--2", scope: BindingScope.SelfAndDescendants) },
                         Handler = () => { }
                     }
                 }
@@ -87,7 +87,7 @@ public class AddBindingSymbolsTaskTests
         .AddCase(
             new RootCommand
             {
-                Bindings = { new Option<string>("--1", scope: BindingScope.Descendents), },
+                Bindings = { new Option<string>("--1", scope: BindingScope.Descendants), },
                 Handler = () => { },
                 Commands =
                 {

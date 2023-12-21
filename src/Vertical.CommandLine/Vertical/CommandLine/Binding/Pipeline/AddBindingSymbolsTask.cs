@@ -15,12 +15,12 @@ public class AddBindingSymbolsTask : IBindingTask
         {
             context.StageBindingSymbols(command
                 .Bindings
-                .Where(binding => binding.Scope == BindingScope.Descendents));
+                .Where(binding => binding.Scope == BindingScope.Descendants));
         }
         
         context.StageBindingSymbols(context
             .InvocationSubject
             .Bindings
-            .Where(binding => binding.Scope is BindingScope.Self or BindingScope.SelfAndDescendents));
+            .Where(binding => binding.Scope is BindingScope.Self or BindingScope.SelfAndDescendants));
     }
 }

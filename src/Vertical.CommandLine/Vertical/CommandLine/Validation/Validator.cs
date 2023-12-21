@@ -9,9 +9,4 @@ public static class Validator
 
         return builder.Build();
     }
-
-    internal static IValidator<T>? TryBuild<T>(this Action<ValidatorBuilder<T>>? action)
-    {
-        return action != null ? Build(action) : null;
-    }
 }

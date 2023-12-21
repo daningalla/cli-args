@@ -11,9 +11,10 @@ public class ModelBinder<T> : IModelBinder
     public Type ServiceType => typeof(IModelBinder);
 
     /// <inheritdoc />
-    public IModelValue BindInstanceBase(IMappedArgumentProvider argumentProvider) => BindInstance(argumentProvider);
+    public IModelValue BindInstanceBase(IMappedArgumentProvider argumentProvider) =>
+        new ModelValue<T>(BindInstance(argumentProvider));
 
-    protected virtual IModelValue<T> BindInstance(IMappedArgumentProvider argumentProvider)
+    protected virtual T BindInstance(IMappedArgumentProvider argumentProvider)
     {
         throw new NotImplementedException("Model binding is not implemented.");
     }

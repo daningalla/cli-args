@@ -12,14 +12,14 @@ public class AddModelBindingTaskTests
     internal class BuildParametersBinder : ModelBinder<BuildParameters>
     {
         /// <inheritdoc />
-        protected override IModelValue<BuildParameters> BindInstance(IMappedArgumentProvider argumentProvider)
+        protected override BuildParameters BindInstance(IMappedArgumentProvider argumentProvider)
         {
             var value = new BuildParameters(
                 argumentProvider.GetValue<BuildConfig>("--config"),
                 argumentProvider.GetValue<FileInfo>("project"),
                 argumentProvider.GetValue<bool>("--no-restore"));
 
-            return new ModelValue<BuildParameters>(value);
+            return value;
         }
     }
 

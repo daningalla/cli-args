@@ -2,6 +2,8 @@
 
 using ConsoleApp;
 using Vertical.CommandLine;
+using Vertical.CommandLine.Conversion;
+using Vertical.CommandLine.Validation;
 
 var pushCommand = new Command("push")
 {
@@ -13,7 +15,7 @@ var pushCommand = new Command("push")
         new Option<string?>("--api-key", new[]{"-k"}),
         new Option<string?>("--source", new[]{"-s"}, defaultProvider: () => "/usr/local/.nuget/packages"),
         new Switch("--skip-duplicates"),
-        new Option<TimeSpan?>("--timeout")
+        new Option<Point?>("--coordinates", converter: new DelegateConverter<Point?>(str => Point.Parse(str, null)))
     },
     Handler = async (PushArguments model, CancellationToken cancellationToken) =>
     {

@@ -17,7 +17,7 @@ public class AddOptionValueBindingsTask : IBindingTask
         var argumentCollection = context.GetSemanticArguments();
 
         var bindingSymbols = context.GetBindingSymbols();
-
+        
         while (bindingSymbols.TryRemoveOptionBinding(out var symbol))
         {
             var argumentPairs = argumentCollection.RemoveOptionArguments(symbol).ToArray();

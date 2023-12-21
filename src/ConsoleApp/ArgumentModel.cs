@@ -23,6 +23,8 @@ public class PushArguments
     public bool SkipDuplicates { get; init; }
     
     public TimeSpan? Timeout { get; init; }
+    
+    public Point? Coordinates { get; init; }
 }
 
 [GeneratedBinding<PushArguments>]

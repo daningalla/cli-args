@@ -9,7 +9,6 @@ namespace Vertical.CommandLine.Validation;
 /// <typeparam name="T">Value type.</typeparam>
 public sealed class ValidationContext<T> : IValidationContext<T>
 {
-    
     internal ValidationContext(
         CliBindingSymbol<T> symbol,
         T attemptedValue)

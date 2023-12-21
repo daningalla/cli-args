@@ -19,7 +19,7 @@ public static class ValidationBuilderComparableExtensions
     {
         return builder.MustSatisfy(new ValidationRule<T>(
                 context => (comparer ?? Comparer<T>.Default).Compare(context.AttemptedValue, value) < 0,
-                messageFormatter ?? (_ => $"Value must be less than \"{value}\".")));
+                messageFormatter ?? (_ => $"Value must be less than {value}.")));
     }
     
     /// <summary>
@@ -39,7 +39,7 @@ public static class ValidationBuilderComparableExtensions
     {
         return builder.MustSatisfy(new ValidationRule<T>(
             context => (comparer ?? Comparer<T>.Default).Compare(context.AttemptedValue, value) <= 0,
-            messageFormatter ?? (_ => $"Value must be less than or equal to \"{value}\".")));
+            messageFormatter ?? (_ => $"Value must be less than or equal to {value}.")));
     }
     
     /// <summary>
@@ -59,7 +59,7 @@ public static class ValidationBuilderComparableExtensions
     {
         return builder.MustSatisfy(new ValidationRule<T>(
             context => (comparer ?? Comparer<T>.Default).Compare(context.AttemptedValue, value) > 0,
-            messageFormatter ?? (_ => $"Value must be greater than \"{value}\".")));
+            messageFormatter ?? (_ => $"Value must be greater than {value}.")));
     }
     
     /// <summary>
@@ -79,7 +79,61 @@ public static class ValidationBuilderComparableExtensions
     {
         return builder.MustSatisfy(new ValidationRule<T>(
             context => (comparer ?? Comparer<T>.Default).Compare(context.AttemptedValue, value) >= 0,
-            messageFormatter ?? (_ => $"Value must be greater than or equal to \"{value}\".")));
+            messageFormatter ?? (_ => $"Value must be greater than or equal to {value}.")));
+    }
+
+    /// <summary>
+    /// Adds a rule that passes validation if the attempted value inclusively between the specified values.
+    /// </summary>
+    /// <param name="builder">Builder</param>
+    /// <param name="comparer">The comparer instance used to determine the relational position among values.</param>
+    /// <param name="messageFormatter">A function that formats the message to display when validation fails.</param>
+    /// <param name="minimumValue">The inclusive minimum value.</param>
+    /// <param name="maximumValue">The inclusive maximum value.</param>
+    /// <returns>A reference to this instance.</returns>
+    public static ValidatorBuilder<T> InclusivelyBetween<T>(
+        this ValidatorBuilder<T> builder,
+        T minimumValue,
+        T maximumValue,
+        IComparer<T>? comparer = null,
+        Func<T, string>? messageFormatter = null)
+        where T : IComparable<T>
+    {
+        return builder.MustSatisfy(new ValidationRule<T>(
+            context =>
+            {
+                comparer ??= Comparer<T>.Default;
+                return comparer.Compare(context.AttemptedValue, minimumValue) >= 0 &&
+                       comparer.Compare(context.AttemptedValue, maximumValue) <= 0;
+            },
+            messageFormatter ?? (_ => $"Value must be inclusively between {minimumValue} and {maximumValue}.")));
+    }
+    
+    /// <summary>
+    /// Adds a rule that passes validation if the attempted value exclusively between the specified values.
+    /// </summary>
+    /// <param name="builder">Builder</param>
+    /// <param name="comparer">The comparer instance used to determine the relational position among values.</param>
+    /// <param name="messageFormatter">A function that formats the message to display when validation fails.</param>
+    /// <param name="minimumValue">The exclusive minimum value.</param>
+    /// <param name="maximumValue">The exclusive maximum value.</param>
+    /// <returns>A reference to this instance.</returns>
+    public static ValidatorBuilder<T> ExclusivelyBetween<T>(
+        this ValidatorBuilder<T> builder,
+        T minimumValue,
+        T maximumValue,
+        IComparer<T>? comparer = null,
+        Func<T, string>? messageFormatter = null)
+        where T : IComparable<T>
+    {
+        return builder.MustSatisfy(new ValidationRule<T>(
+            context =>
+            {
+                comparer ??= Comparer<T>.Default;
+                return comparer.Compare(context.AttemptedValue, minimumValue) > 0 &&
+                       comparer.Compare(context.AttemptedValue, maximumValue) < 0;
+            },
+            messageFormatter ?? (_ => $"Value must be exclusively between {minimumValue} and {maximumValue}.")));
     }
 
     /// <summary>
@@ -98,7 +152,7 @@ public static class ValidationBuilderComparableExtensions
     {
         return builder.MustSatisfy(new ValidationRule<T>(
             context => (comparer ?? Comparer<T>.Default).Compare(context.AttemptedValue, value) != 0,
-            messageFormatter ?? (_ => $"Value must not be \"{value}\".")));
+            messageFormatter ?? (_ => $"Value must not be {value}.")));
     }
     
     /// <summary>
@@ -121,7 +175,7 @@ public static class ValidationBuilderComparableExtensions
             context => values.Any(value => equalityComparer.Equals(context.AttemptedValue, value)),
             messageFormatter ?? (_ =>
             {
-                var valuesString = string.Join(',', values.Select(val => $"\"{val}\""));
+                var valuesString = string.Join(',', values);
                 return $"Value must be one of: [{valuesString}]";
             })));
     }
@@ -146,7 +200,7 @@ public static class ValidationBuilderComparableExtensions
             context => values.All(value => !equalityComparer.Equals(context.AttemptedValue, value)),
             messageFormatter ?? (_ =>
             {
-                var valuesString = string.Join(',', values.Select(val => $"\"{val}\""));
+                var valuesString = string.Join(',', values);
                 return $"Value must not be one of: [{valuesString}]";
             })));
     }
