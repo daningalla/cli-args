@@ -1,14 +1,22 @@
 ﻿using Vertical.CommandLine.Utilities;
 
-namespace Vertical.CommandLine.Invocation;
+namespace Vertical.CommandLine.Binding;
 
-public sealed class ArgumentIdComparer : IEqualityComparer<ArgumentId>
+internal sealed class BindingNameComparer : IEqualityComparer<string>
 {
+    internal static IEqualityComparer<string> Instance { get; } = new BindingNameComparer();
+    
     /// <inheritdoc />
-    public bool Equals(ArgumentId x, ArgumentId y)
+    public bool Equals(string? x, string? y)
     {
-        var spanX = x.Id.AsSpan();
-        var spanY = y.Id.AsSpan();
+        if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
+            return true;
+
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            return false;
+        
+        var spanX = x.AsSpan();
+        var spanY = y.AsSpan();
         var last = (x: char.MinValue, y: char.MinValue);
 
         while (spanX.Length > 0 && spanY.Length > 0)
@@ -43,11 +51,11 @@ public sealed class ArgumentIdComparer : IEqualityComparer<ArgumentId>
     }
 
     /// <inheritdoc />
-    public int GetHashCode(ArgumentId obj)
+    public int GetHashCode(string value)
     {
         var id = ReusableStringBuilder.Build(sb =>
         {
-            foreach (var chr in obj.Id.Where(char.IsLetterOrDigit))
+            foreach (var chr in value.Where(char.IsLetterOrDigit))
             {
                 sb.Append(char.ToLower(chr));
             }

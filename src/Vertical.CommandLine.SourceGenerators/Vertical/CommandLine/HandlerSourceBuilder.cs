@@ -1,21 +1,27 @@
 ﻿using System.Text;
+using Microsoft.CodeAnalysis;
 
 namespace Vertical.CommandLine;
 
 internal static class HandlerSourceBuilder
 {
-    public static string Build(HandlerMetadata[] handlers, bool hasDiagnostics)
+    public static string Build(
+        HandlerMetadata[] handlers,
+        OptimizationLevel optimizationLevel,
+        bool hasDiagnostics)
     {
         var builder = new StringBuilder(25000);
         var cs = new CSharpFormatter(builder);
 
         if (handlers.Length > 0 && !hasDiagnostics)
-            BuildSource(handlers, cs);
-        
+        {
+            BuildSource(handlers, cs, optimizationLevel == OptimizationLevel.Debug);
+        }
+
         return builder.ToString();
     }
 
-    private static void BuildSource(HandlerMetadata[] handlers, CSharpFormatter cs)
+    private static void BuildSource(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
     {
         cs.WriteHeader();
         cs.WriteUsingStatements(
@@ -24,29 +30,30 @@ internal static class HandlerSourceBuilder
             "System.Threading.Tasks",
             "Vertical.CommandLine",
             "Vertical.CommandLine.Binding",
-            "Vertical.CommandLine.Invocation");
+            "Vertical.CommandLine.Invocation",
+            "Vertical.CommandLine.Utilities");
         cs.WriteNullableEnable();
-        WriteExtensions(handlers, cs);
+        WriteExtensions(handlers, cs, isDebug);
     }
 
-    private static void WriteExtensions(HandlerMetadata[] handlers, CSharpFormatter cs)
+    private static void WriteExtensions(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
     {
         cs.AppendLine($"namespace {Constants.BaseNamespace}");
-        cs.AppendBlock(inner => WriteExtensionClass(handlers, inner));
+        cs.AppendBlock(inner => WriteExtensionClass(handlers, inner, isDebug));
     }
 
-    private static void WriteExtensionClass(HandlerMetadata[] handlers, CSharpFormatter cs)
+    private static void WriteExtensionClass(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
     {
         cs.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         cs.AppendLine("public static class InvocationExtensions");
-        cs.AppendBlock(inner => WriteClassBody(handlers, inner));
+        cs.AppendBlock(inner => WriteClassBody(handlers, inner, isDebug));
     }
 
-    private static void WriteClassBody(HandlerMetadata[] handlers, CSharpFormatter cs)
+    private static void WriteClassBody(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
     {
         var namingManager = new NamingManager();
         
-        WriteInvokeExtensionMethod(handlers, cs, namingManager);
+        WriteInvokeExtensionMethod(handlers, cs, namingManager, isDebug);
         WriteCommandInvocationMethods(handlers, cs, namingManager);
     }
 
@@ -70,7 +77,8 @@ internal static class HandlerSourceBuilder
     private static void WriteInvokeExtensionMethod(
         HandlerMetadata[] handlers,
         CSharpFormatter cs,
-        NamingManager namingManager)
+        NamingManager namingManager,
+        bool isDebug)
     {
         // Already checked there is only 1 distinct return type
         var template = handlers.First();
@@ -94,14 +102,22 @@ internal static class HandlerSourceBuilder
             }
             inner.AppendLine(")");
         });
-        cs.AppendBlock(inner => WriteExtensionMethodBody(handlers, inner, namingManager));
+        cs.AppendBlock(inner => WriteExtensionMethodBody(handlers, inner, namingManager, isDebug));
     }
 
     private static void WriteExtensionMethodBody(
         HandlerMetadata[] handlers,
         CSharpFormatter cs,
-        NamingManager namingManager)
+        NamingManager namingManager,
+        bool isDebug)
     {
+        if (isDebug)
+        {
+            cs.AppendLine("// Removed when optimization is RELEASE");
+            cs.AppendLine("ConfigurationValidator.Validate(rootCommand);");
+            cs.AppendLine();
+        }
+        
         cs.Append("var context = InvocationContextBuilder.Create(rootCommand, args");
         cs.AppendLine(handlers[0].IsAsyncTask ? ", cancellationToken);" : ");");
         cs.AppendLine();

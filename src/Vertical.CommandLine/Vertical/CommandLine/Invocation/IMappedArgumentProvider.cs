@@ -72,11 +72,6 @@ public interface IMappedArgumentProvider
     Queue<T> GetValueQueue<T>(string bindingId);
 
     /// <summary>
-    /// Gets the binding dictionary keyed by parameter name.
-    /// </summary>
-    BindingDictionary<IArgumentValueBinding> Bindings { get; }
-
-    /// <summary>
     /// Gets binding services.
     /// </summary>
     BindingServiceCollection Services { get; }

@@ -35,6 +35,7 @@ internal static class GeneratedBindingSourceBuilder
         var modelTypeName = $"{modelType.ContainingNamespace.ToDisplayString()}.{modelType.Name}";
         var baseTypeName = $"ModelBinder<{modelTypeName}>";
         
+        cs.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         cs.AppendLine($"public partial class {metadata.BinderTypeName} : {baseTypeName}");
         cs.AppendBlock(inner => WriteClassBody(inner, metadata, modelTypeName));
     }

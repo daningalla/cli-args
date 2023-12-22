@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 
-namespace Vertical.CommandLine.Invocation;
+namespace Vertical.CommandLine.Binding;
 
 public class ArgumentIdComparerTests
 {
-    private readonly IEqualityComparer<ArgumentId> _instance = new ArgumentIdComparer();
+    private readonly IEqualityComparer<string> _instance = BindingNameComparer.Instance;
 
     [Theory]
     // Positives
@@ -18,9 +18,6 @@ public class ArgumentIdComparerTests
     // Negatives
     public void Compare_Returns_Expected(string x, string y, bool expected)
     {
-        var idX = new ArgumentId(x);
-        var idY = new ArgumentId(y);
-
-        _instance.Equals(idX, idY).Should().Be(expected);
+        _instance.Equals(x, y).Should().Be(expected);
     }
 }

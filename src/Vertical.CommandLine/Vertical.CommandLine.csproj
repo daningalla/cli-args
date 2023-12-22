@@ -13,10 +13,6 @@
       <_Parameter1>Vertical.CommandLine.Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Vertical.CommandLine.Analysis\Vertical.CommandLine.Analysis.csproj" />
-  </ItemGroup>  
 
   <ItemGroup>
     <PackageReference Include="vertical-pipelines" Version="3.1.1" />

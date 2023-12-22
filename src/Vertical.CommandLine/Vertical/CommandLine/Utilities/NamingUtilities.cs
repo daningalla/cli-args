@@ -5,50 +5,86 @@
 /// </summary>
 internal static class NamingUtilities
 {
-    internal static string GetInferredBindingName(string id)
+    private static bool IsValidPosixIdentifier(ReadOnlySpan<char> span)
     {
-        using var stringBuilderRef = ReusableStringBuilder.GetInstance();
-        var sb = stringBuilderRef.Value;
-        var c = 0;
+        if (span.Length < 2) return false;
+
+        if (span[0] != '-') return false;
         
-        // Strip leading prefixes
-        for (; c < id.Length && id[c] is '-' or '/'; c++)
-        {
-        }
-        
-        // Ensure next character is lower case
-        if (c < id.Length)
-        {
-            sb.Append(char.ToLower(id[c]));
-            c++;
-        }
+        span = span.Slice(1);
 
-        var nextCharIsUpperCase = false;
-        for (; c < id.Length; c++)
-        {
-            var chr = id[c];
-            if (chr == '-')
-            {
-                nextCharIsUpperCase = true;
-                continue;
-            }
+        // Each character must be unique
+        if (new HashSet<char>(span.ToArray()).Count != span.Length)
+            return false;
 
-            chr = nextCharIsUpperCase ? char.ToUpper(chr) : chr;
-            sb.Append(chr);
-            nextCharIsUpperCase = false;
+        for (var i = 1; i < span.Length; i++)
+        {
+            var c = span[i];
+
+            if (!char.IsLetterOrDigit(c))
+                return false;
         }
 
-        var name = sb.ToString();
-        return name;
+        return true;
     }
 
-    internal static string ToCamelCase(string str)
+    private static bool IsValidGnuIdentifier(ReadOnlySpan<char> span)
     {
-        return str.Length switch
+        if (span.Length < 3) return false;
+
+        if (!(span[0] == '-' && span[1] == '-'))
+            return false;
+
+        span = span.Slice(2);
+
+        for (var i = 2; i < span.Length; i++)
         {
-            1 when char.IsUpper(str[0]) => char.ToLower(str[0]).ToString(),
-            > 1 when char.IsUpper(str[0]) => $"{char.ToLower(str[0])}{str[1..]}",
-            _ => str
-        };
+            var c = span[i];
+
+            if (char.IsLetterOrDigit(c) || c == '-')
+                continue;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsValidMicrosoftIdentifier(ReadOnlySpan<char> span)
+    {
+        if (span.Length < 2) return false;
+        
+        if (span[0] != '/') return false;
+
+        for (var c = 1; c < span.Length; c++)
+        {
+            if (!char.IsLetterOrDigit(span[c]))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static bool IsValidPrefixedIdentifier(ReadOnlySpan<char> span) =>
+        IsValidPosixIdentifier(span) ||
+        IsValidGnuIdentifier(span) ||
+        IsValidMicrosoftIdentifier(span);
+
+    public static bool IsValidNonPrefixedIdentifier(ReadOnlySpan<char> span)
+    {
+        if (span.Length == 0) return false;
+
+        if (!char.IsLower(span[0]))
+            return false;
+
+        for (var c = 1; c < span.Length; c++)
+        {
+            if (char.IsLower(span[c]) || span[c] == '-')
+                continue;
+
+            return false;
+        }
+
+        return true;
     }
 }

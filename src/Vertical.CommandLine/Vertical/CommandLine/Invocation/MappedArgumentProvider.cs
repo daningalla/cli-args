@@ -4,18 +4,18 @@ namespace Vertical.CommandLine.Invocation;
 
 internal sealed class MappedArgumentProvider : IMappedArgumentProvider
 {
+    private readonly IReadOnlyDictionary<string, IArgumentValueBinding> _bindings;
+    
     internal MappedArgumentProvider(
         BindingServiceCollection services,
         IEnumerable<IArgumentValueBinding> bindings)
     {
         Services = services;
-        Bindings = BindingDictionary<IArgumentValueBinding>.Create(bindings, item => item.BaseSymbol);
+        _bindings = bindings.ToDictionary(
+            binding => binding.BindingId,
+            binding => binding,
+            BindingNameComparer.Instance);
     }
-
-    /// <summary>
-    /// Gets the binding dictionary keyed by parameter name.
-    /// </summary>
-    public BindingDictionary<IArgumentValueBinding> Bindings { get; }
 
     /// <summary>
     /// Gets binding services.
@@ -27,8 +27,8 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     {
         if (Services.TryGetService(out IModelValue<T>? modelValueWrapper))
             return modelValueWrapper.Value;
-        
-        var binding = (IArgumentValueBinding<T>)Bindings[bindingId];
+
+        var binding = GetBinding<T>(bindingId);
         return binding.ArgumentValues.Single();
     }
 
@@ -55,7 +55,12 @@ internal sealed class MappedArgumentProvider : IMappedArgumentProvider
     
     private T[] GetValues<T>(string parameterId)
     {
-        var binding = (ArgumentValueBinding<T>)Bindings[parameterId];
+        var binding = GetBinding<T>(parameterId);
         return binding.ArgumentValues;
+    }
+
+    private ArgumentValueBinding<T> GetBinding<T>(string id)
+    {
+        return (ArgumentValueBinding<T>)_bindings[id];
     }
 }

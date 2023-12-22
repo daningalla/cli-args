@@ -6,9 +6,6 @@ public static class BindingPipeline
     
     private static readonly Func<IBindingTask[]> DefaultMiddlewareFactory = () => new IBindingTask[]
     {
-#if DEBUG        
-        new ValidateConfigurationTask(),
-#endif
         new BuildCommandPathTask(),
         new AddBindingSymbolsTask(),
         new AddValueConverterServicesTask(),
@@ -19,8 +16,6 @@ public static class BindingPipeline
         new AddModelBindingValuesTasks(),
         new PostValidateContextTask()
     };
-
-    public static LinkedList<IBindingTask> DefaultMiddleware => new(DefaultMiddlewareFactory());
 
     public static IBindingContext CreateContext(
         RootCommand rootCommand,

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Vertical.CommandLine.Analysis;
 using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Configuration;
 using Vertical.CommandLine.Conversion;
@@ -83,7 +82,10 @@ public static class ConfigurationValidator
         // by model binding
         
         var bindings = path.SelectMany(command => command.Bindings);
-        var bindingDictionary = BindingDictionary<CliBindingSymbol>.Create(bindings, item => item);
+        var bindingDictionary = bindings.ToDictionary(
+            binding => binding.Id,
+            binding => binding,
+            BindingNameComparer.Instance);
         var modelBinderValueTypes = new HashSet<Type>();
         
         foreach (var command in path.Where(command => command.Handler is not null))
@@ -220,7 +222,7 @@ public static class ConfigurationValidator
         // Validate naming
         foreach (var identifier in command.Aliases.Append(command.Id))
         {
-            if (NamingAnalysis.IsValidNonPrefixedIdentifier(identifier))
+            if (NamingUtilities.IsValidNonPrefixedIdentifier(identifier))
                 continue;
 
             exceptions.Add(ConfigurationExceptions.InvalidIdentifierName(command, identifier));
@@ -236,8 +238,8 @@ public static class ConfigurationValidator
         foreach (var (binding, name) in bindingNames)
         {
             var isValid = binding.SymbolType == CliSymbolType.Argument
-                ? NamingAnalysis.IsValidNonPrefixedIdentifier(name)
-                : NamingAnalysis.IsValidPrefixedIdentifier(name);
+                ? NamingUtilities.IsValidNonPrefixedIdentifier(name)
+                : NamingUtilities.IsValidPrefixedIdentifier(name);
 
             if (isValid) continue;
             
