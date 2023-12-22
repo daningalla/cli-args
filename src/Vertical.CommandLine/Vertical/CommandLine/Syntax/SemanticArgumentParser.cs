@@ -1,4 +1,5 @@
-﻿using Vertical.CommandLine.Utilities;
+﻿using CommunityToolkit.Diagnostics;
+using Vertical.CommandLine.Utilities;
 
 namespace Vertical.CommandLine.Syntax;
 
@@ -8,15 +9,37 @@ namespace Vertical.CommandLine.Syntax;
 public sealed class SemanticArgumentParser
 {
     private enum QueuePosition { First, Last, Single, Middle }
-    private record QueueValue(
-        TokenizedInputSequence Value, 
-        QueuePosition Position,
-        SemanticAnatomy Anatomy);
+
+    private sealed class QueueValue
+    {
+        internal QueueValue(
+            TokenizedInputSequence value,
+            QueuePosition position,
+            SemanticAnatomy anatomy)
+        {
+            Value = value;
+            Position = position;
+            Anatomy = anatomy;
+        }
+
+        public TokenizedInputSequence Value { get; }
+
+        public QueuePosition Position { get; }
+
+        public SemanticAnatomy Anatomy { get; }
+    }
     
     private readonly List<SemanticArgument> _list = new(32);
     
+    /// <summary>
+    /// Parses the given input sequences into semantic arguments.
+    /// </summary>
+    /// <param name="arguments">Arguments.</param>
+    /// <returns><see cref="SemanticArgument"/> array.</returns>
     public static SemanticArgument[] Parse(TokenizedInputSequence[] arguments)
     {
+        Guard.IsNotNull(arguments);
+        
         var instance = new SemanticArgumentParser();
 
         return instance.ParseInternal(arguments);

@@ -37,11 +37,9 @@ public sealed class  CommandHandlerGenerator : IIncrementalGenerator
             {
                 prodContext.ReportDiagnostic(diagnostic);
             }
-            
-            var sourceContent = HandlerSourceBuilder.Build(
-                referenceHandlers, 
-                source.Left.Options.OptimizationLevel,
-                diagnostics.Count > 0);
+
+            var builder = new HandlerSourceBuilder(source.Left.Options.OptimizationLevel, diagnostics.Count > 0);
+            var sourceContent = builder.Build(referenceHandlers);
             
             prodContext.AddSource(Constants.FileNameHint, sourceContent);
         });

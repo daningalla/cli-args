@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using CommunityToolkit.Diagnostics;
 
 namespace Vertical.CommandLine.Validation;
 
@@ -16,10 +17,8 @@ public static class ValidationBuilderStringExtensions
         int length,
         Func<T, string>? messageFormatter = null)
     {
-        if (length < 0)
-        {
-            throw new ArgumentException("Value must be a positive number.", nameof(length));
-        }
+        Guard.IsNotNull(builder);
+        Guard.IsGreaterThanOrEqualTo(length, 0);
         
         return builder.MustSatisfy(new ValidationRule<T>(context =>
                 context.AttemptedValue is string str && str.Length >= length,
@@ -39,10 +38,8 @@ public static class ValidationBuilderStringExtensions
         int length,
         Func<T, string>? messageFormatter = null)
     {
-        if (length < 0)
-        {
-            throw new ArgumentException("Value must be a positive number.", nameof(length));
-        }
+        Guard.IsNotNull(builder);
+        Guard.IsGreaterThanOrEqualTo(length, 0);
         
         return builder.MustSatisfy(new ValidationRule<T>(context =>
                 context.AttemptedValue is string str && str.Length <= length,
@@ -62,7 +59,8 @@ public static class ValidationBuilderStringExtensions
         string pattern,
         Func<T, string>? messageFormatter = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(pattern);
+        Guard.IsNotNull(builder);
+        Guard.IsNotNull(pattern);
         
         return builder.MustSatisfy(new ValidationRule<T>(context =>
             context.AttemptedValue is string str && Regex.IsMatch(str, pattern),
@@ -81,7 +79,8 @@ public static class ValidationBuilderStringExtensions
         Regex regex,
         Func<T, string>? messageFormatter = null)
     {
-        ArgumentNullException.ThrowIfNull(regex);
+        Guard.IsNotNull(builder);
+        Guard.IsNotNull(regex);
         
         return builder.MustSatisfy(new ValidationRule<T>(context =>
             context.AttemptedValue is string str && regex.IsMatch(str),
@@ -102,8 +101,9 @@ public static class ValidationBuilderStringExtensions
         StringComparison? comparison = null,
         Func<T, string>? messageFormatter = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(subString);
-
+        Guard.IsNotNull(builder);
+        Guard.IsNotNull(subString);
+        
         return builder.MustSatisfy(new ValidationRule<T>(context =>
                 context.AttemptedValue is string str &&
                 str.Contains(subString, comparison ?? StringComparison.Ordinal),
@@ -124,8 +124,9 @@ public static class ValidationBuilderStringExtensions
         StringComparison comparison = StringComparison.Ordinal,
         Func<T, string>? messageFormatter = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(subString);
-
+        Guard.IsNotNull(builder);
+        Guard.IsNotNull(subString);
+        
         return builder.MustSatisfy(new ValidationRule<T>(context =>
                 context.AttemptedValue is string str && str.StartsWith(subString, comparison),
             messageFormatter ?? (value => $"Value \"{value}\" does not start with expected substring \"{subString}\".")));
@@ -145,8 +146,9 @@ public static class ValidationBuilderStringExtensions
         StringComparison comparison = StringComparison.Ordinal,
         Func<T, string>? messageFormatter = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(subString);
-
+        Guard.IsNotNull(builder);
+        Guard.IsNotNull(subString);
+        
         return builder.MustSatisfy(new ValidationRule<T>(context =>
                 context.AttemptedValue is string str && str.EndsWith(subString, comparison),
             messageFormatter ?? (value => $"Value \"{value}\" does not end with expected substring \"{subString}\".")));

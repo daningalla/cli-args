@@ -1,4 +1,5 @@
-﻿using Vertical.CommandLine.Binding;
+﻿using CommunityToolkit.Diagnostics;
+using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Conversion;
 
 namespace Vertical.CommandLine.Configuration;
@@ -21,6 +22,8 @@ public abstract class CliBindingSymbol : CliSymbol
         Type valueType) 
         : base(id, aliases)
     {
+        Guard.IsNotNullOrWhiteSpace(id);
+        
         Arity = arity;
         Scope = scope;
         ValueType = valueType;

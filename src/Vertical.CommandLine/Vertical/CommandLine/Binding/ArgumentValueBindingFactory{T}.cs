@@ -4,7 +4,7 @@ using Vertical.CommandLine.Validation;
 
 namespace Vertical.CommandLine.Binding;
 
-public class ArgumentValueBindingFactory<T> : IArgumentValueBindingFactory
+internal sealed class ArgumentValueBindingFactory<T> : IArgumentValueBindingFactory
 {
     /// <inheritdoc />
     public IArgumentValueBinding CreateBinding(

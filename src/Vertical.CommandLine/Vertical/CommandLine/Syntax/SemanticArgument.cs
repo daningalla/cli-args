@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Diagnostics;
 using Vertical.CommandLine.Utilities;
 
 namespace Vertical.CommandLine.Syntax;
@@ -25,8 +26,7 @@ public class SemanticArgument
         SemanticAnatomy anatomy,
         SemanticHint semanticHint = SemanticHint.None)
     {
-        ArgumentNullException.ThrowIfNull(sequence);
-        Guards.ThrowIfZeroCount(sequence.Length, nameof(sequence));
+        Guard.IsGreaterThan(sequence.Length, 0, nameof(sequence));
 
         _anatomy = anatomy;
         _tokens = sequence.TokenArray;

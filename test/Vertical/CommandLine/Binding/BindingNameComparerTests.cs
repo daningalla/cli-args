@@ -2,7 +2,7 @@
 
 namespace Vertical.CommandLine.Binding;
 
-public class ArgumentIdComparerTests
+public class BindingNameComparerTests
 {
     private readonly IEqualityComparer<string> _instance = BindingNameComparer.Instance;
 

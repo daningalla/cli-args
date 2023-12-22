@@ -27,23 +27,28 @@ $ dotnet add package vertical-cli --pre
 ```csharp
 using Vertical.CommandLine;
 
+enum CompressionType { None, GZip }
+
 // Program.cs
 var rootCommand = new RootCommand
 {
+    // Define options and arguments
     Bindings = 
     {
         new Argument<FileInfo>("source", arity: Arity.One),
         new Argument<FileInfo>("dest", arity: Arity.One),
-        new Option<string?>("--compression")
+        new Option<CompressionType>("--compression")
     },
+    
+    // Define a delegate to receive the arguments
     Handler = async (
         FileInfo source, 
         FileInfo dest, 
-        string? compression, 
+        CompressionType compression, 
         CancellationToken cancelToken) => 
         {
             using var sourceStream = File.OpenRead(source);
-            using var destStream = "gzip" == compression
+            using var destStream = CompressionType.GZip == compression
                 ? new GZipStream(File.OpenWrite(dest), CompressionMode.Compress)
                 : File.OpenWrite(dest);
 
@@ -52,6 +57,7 @@ var rootCommand = new RootCommand
         }
 };
 
+// Invoke the program
 await rootCommand.InvokeAsync(args, CancellationToken.None);
 ```
 
@@ -69,7 +75,7 @@ _Commands_ represent an action your application can perform. It consists of stro
 >
 > The `Invoke` and `InvokeAsync` extension methods are source generated. If they are not available, rebuild your project.
 
-Commands can have sub-commands that perform different actions. Consider `dotnet nuget push` and `dotnet nuget delete` CLI commands. Whereas `dotnet` is the program name and would be defined as the root command, `nuget` is a sub-command defined within the root command, and `push` and `delete` are sub-commands defined within the `nuget` command. The above could be minimally configured as follows:
+Commands can have sub-commands that perform different actions. Consider `dotnet nuget push` and `dotnet nuget delete` tool commands. Whereas `dotnet` is the program name and would be defined as the root command, `nuget` is a sub-command defined within the root command, and `push` and `delete` are sub-commands defined within the `nuget` command. The above could be minimally configured as follows:
 
 ```csharp
 var nugetCommand = new Command("nuget")
@@ -150,13 +156,17 @@ The library has binding support for:
 
 ### Aliases
 
-Options and switches can defined _aliases_, which are other prefixed identifiers the binding can be referred to. For example, we may want a path option to have two names in the CLI.
+Options and switches can define _aliases_, which are other prefixed identifiers the binding can be referred to. For example, we may want a path option to have two names in the CLI.
 
 ```csharp
 var pathOption = new Option<string>("--path", aliases: new[]{"-p"});
 ```
 
 All primary identifiers, as well as aliases, must be unique within the `Bindings` collection of a command.
+
+> Note
+>
+> The library will bind parameters and model properties only to primary identifiers, not to aliases.
 
 ### Handlers
 
@@ -168,13 +178,31 @@ Handlers are delegates that receive the parsed argument values as strongly-typed
 
 ## Advanced configuration
 
+### Default values
+
+When CLI input omits an option or argument that has an optional arity, the parsed value will be the default type of the handler parameter (equivalent to `default(T)`). Applications can define a custom default value by specifying a function in the constructor of the `Argument<T>` or `Option<T>` types. The function will be called when the default value is required.
+
+```csharp
+var option = new Option<DateTime?>("--date", defaultProvider: () => DateTime.Now);
+```
+
 ### Explicit binding names
 
-The library has limits 
+If the application needs to bind to a parameter or property where the name cannot be matched by default, an explicit binding can be made using `[BindingAttribute]` as shown in the following example:
+
+```csharp
+var rootCommand = new RootCommand
+{
+    Bindings = new Option<string>("--path"),
+
+    // 'paths' won't bind to '--path', so use the explicit binding attribute
+    Handler = ([Binding("--path")] IEnumerable<string> paths) => { /*...*/ }
+};
+```
 
 ### Binding different types
 
-The library will automatically bind the following types:
+The library will automatically convert from `string` CLI arguments to the following types:
 
 - All numeric types defined in the `System` namespace including `Half` and `Int128`, and their `Nullable<T>` counterparts.
 - Character types `char` and `string`.
@@ -193,17 +221,16 @@ public readonly struct Point(double X, double Y) : IParsable<Point>
     public static bool TryParse(string? s, IFormatProvider? provider, out Point result) { /* ... */ }
 }
 
-// Define a converter type for more complex implementation
+// Define a converter inline.
+var option = new Option<Point>("--coordinates", converter: new DelegateConverter<Point>(Point.Parse));
+
+// Or use an application-defined converter type
 public class PointConverter : ValueConverter<Point>
 {
     public override Point Convert(ConversionContext<T> context) =>
         Point.Parse(context.Value, provider: null);
 }
 
-// Define a converter inline.
-var option = new Option<Point>("--coordinates", converter: new DelegateConverter<Point>(Point.Parse));
-
-// Or use the application-defined converter type
 var option = new Option<Point>("--coordinates", converter: new PointConverter());
 
 ```
@@ -242,15 +269,16 @@ Like converters, validators can also be introduced in a command's `Validators` c
 
 ### Binding scope
 
-By default, option and argument bindings are only available to the command in which they are defined. There may be cases where the same option or argument will be defined across all commands, or particular commands in a sub-path. The library provides the notion of _scopes_ to help you not repeat yourself. The three scopes are:
+By default, option and argument bindings are only available to the command in which they are defined. There may be cases where the same option or argument will be defined across all commands, or particular commands in a sub-path. The library provides the notion of _scopes_ to help you not repeat yourself. The three scopes in the `BindingScope` enum are:
 
 - `Self` - The default, the binding will only apply to the command in which it is defined
-- `SelfAndDescendants` - The binding will apply to the command in which it is defined and propagate to any sub-commands.
-- `Descendants` - The binding will only propagate to sub-commands.
+- `SelfAndDescendants` - The binding will apply to the command in which it is defined and inherited by any sub-commands.
+- `Descendants` - The binding will be inherited by sub-commands.
 
 ```csharp
 var rootCommand = new RootCommand
 {
+    // Push this down to commands
     Bindings = { new Argument<FileInfo>("path", scope: BindingScope.Descendants) },
     Commands = 
     {
@@ -269,7 +297,7 @@ var rootCommand = new RootCommand
 
 ### Model binding
 
-An application can aggregate scalar argument values into a model by using an implementation of `ModelBinder<T>`. The following example demonstrates this:
+An application can aggregate argument values into an application model by using an implementation of `ModelBinder<T>`. The following example demonstrates this:
 
 ```csharp
 // Models
@@ -298,7 +326,11 @@ var rootCommand = new RootCommand
         new Argument<FileInfo>("dest"),
         new Option<CompressionType>("--compression")
     },
+
+    // Register binder
     ModelBinders = { new CompressParametersBinder() },
+
+    // Define handler
     Handler = async (CompressParameters parameters, CancellationToken cancel) => 
     {
         await using var sourceStream = File.OpenRead(parameters.Source);
@@ -312,14 +344,14 @@ var rootCommand = new RootCommand
 ```
 
 ### Automatic binder generation
-
+ 
 The library has a source generator that will automatically build binders for you by simply using the `GeneratedBinding` attribute. We'll modify the above example to leverage the source generator.
 
 ```csharp
 // Models
 public enum CompressionType { None, GZip }
 
-// Note usage of this attribute is not required on the model itself, but should be used if the model type is under active development (triggers the source generator).
+// Note usage of this attribute is not required on the model itself, but should be used if the model type is under active development (triggers the source generator). 
 [GeneratedBinding]
 public record CompressParameters(FileInfo Source, FileInfo Dest, CompressionType Compression);
 
@@ -333,5 +365,46 @@ public partial class CompressParametersBinder : ModelBinder<CompressParameters>
 var rootCommand = new RootCommand
 {
     /* setup */
+}
+```
+
+## Handling exceptions
+
+The library will throw exceptions during validation in `DEBUG` mode if the root command configuration is invalid. These are typically the `InvalidOperationException` and `ArgumentException` types.
+
+When a user of your application makes an error, the library will throw a `CommandLineException`. The application can catch the exception and display the message to the user. Examples of invalid CLI input caught by the library are as follows:
+
+- An option or argument's arity was violated.
+- A sub-command was not matched when the root command does not have a handler.
+- A value fails conversion or validation.
+
+
+## Testing
+
+The library provides the `ConfigurationValidator` class that will inspect a `RootCommand` object. The `Validate` method will ensure the following:
+
+- All identifiers are in the proper format
+- There are no identifier conflicts in any command pathway
+- Handlers are present where needed
+- Handlers return a unified result type
+- Bindings types are compatible with handler parameter types
+- Arity of bindings is valid
+
+> Note
+> 
+> When a project is built and run in `DEBUG` mode, handler source generators will inject validation. Otherwise, in `RELEASE` validation does not occur so ensure you test your configurations.
+
+```csharp
+// Validating configuration in unit tests
+
+[Fact]
+public void Configuration_Is_Valid()
+{
+    var rootCommand = { /* configure */ };
+
+    ConfigurationValidator
+        .Validate(rootCommand)
+        .Should()
+        .BeEmpty();
 }
 ```

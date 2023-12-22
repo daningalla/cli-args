@@ -1,5 +1,8 @@
 ﻿namespace Vertical.CommandLine.Validation;
 
+/// <summary>
+/// Represents the result of a validation.
+/// </summary>
 public readonly struct ValidationResult
 {
     private ValidationResult(bool isValid, string? message)

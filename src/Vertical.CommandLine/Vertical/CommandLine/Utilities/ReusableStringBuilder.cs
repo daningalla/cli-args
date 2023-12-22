@@ -8,8 +8,6 @@ internal static class ReusableStringBuilder
         () => new StringBuilder(1000),
         sb => sb.Clear());
 
-    internal static Reusable<StringBuilder>.LeasedValue GetInstance() => Instance.GetInstance();
-
     internal static string Build(Action<StringBuilder> writer)
     {
         using var leased = GetInstance();
@@ -19,4 +17,6 @@ internal static class ReusableStringBuilder
 
         return content;
     }
+
+    private static Reusable<StringBuilder>.LeasedValue GetInstance() => Instance.GetInstance();
 }

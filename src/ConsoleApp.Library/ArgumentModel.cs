@@ -1,8 +1,5 @@
-﻿using Vertical.CommandLine.Binding;
+﻿namespace ConsoleApp.Library;
 
-namespace ConsoleApp;
-
-[GeneratedBinding]
 public class PushArguments
 {
     public PushArguments(FileInfo root)
@@ -25,9 +22,4 @@ public class PushArguments
     public TimeSpan? Timeout { get; init; }
     
     public Point? Coordinates { get; init; }
-}
-
-[GeneratedBinding<PushArguments>]
-public partial class PushArgumentsBinder
-{
 }

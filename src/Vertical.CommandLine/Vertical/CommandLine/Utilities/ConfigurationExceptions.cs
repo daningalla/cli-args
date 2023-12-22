@@ -167,46 +167,14 @@ internal static class ConfigurationExceptions
         return new InvalidOperationException(message);
     }
 
-    public static Exception BindingModelHasNoCandidateConstructor(Type modelType)
+    public static Exception ModelHasUnbindablePropertyOrConstructorParameter(Type modelType, 
+        string name,
+        Type type)
     {
         var message = ReusableStringBuilder.Build(sb =>
         {
-            sb.AppendLine($"Application binding target model {modelType} does not have a usable candidate constructor.");
-
-            var constructors = modelType.GetConstructors();
-            sb.AppendLine("Found the following:");
-            foreach (var constructor in constructors)
-            {
-                sb.AppendLine($"  > {constructor}");
-            }
-        });
-
-        return new InvalidOperationException(message);
-    }
-
-    public static Exception ModelHasUnbindableConstructorParameter(
-        Type modelType, 
-        ConstructorInfo constructor,
-        ParameterInfo parameter)
-    {
-        var message = ReusableStringBuilder.Build(sb =>
-        {
-            sb.AppendLine($"Application binding target model {modelType} has one or more unbindable constructor parameters:");
-            sb.AppendLine($"  Constructor: {constructor}");
-            sb.AppendLine($"  Parameter: {parameter.Name}");
-            sb.AppendLine("Could not find a matching binding symbol.");
-        });
-
-        return new InvalidOperationException(message);
-    }
-
-    public static Exception ModelHasUnbindableProperty(Type modelType, PropertyInfo property, string bindingId)
-    {
-        var message = ReusableStringBuilder.Build(sb =>
-        {
-            sb.AppendLine($"Application binding target model {modelType} has one or more unbindable properties:");
-            sb.AppendLine($"  Property: {property.Name} ({property.PropertyType})");
-            sb.AppendLine($"  Attempted binding id: {bindingId}");
+            sb.AppendLine($"Application binding target model {modelType} has unbindable property or constructor parameter:");
+            sb.AppendLine($"  Property/parameter: {name} ({type})");
         });
 
         return new InvalidOperationException(message);

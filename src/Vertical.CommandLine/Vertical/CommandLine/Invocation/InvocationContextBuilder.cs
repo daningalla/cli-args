@@ -1,4 +1,5 @@
-﻿using Vertical.CommandLine.Binding;
+﻿using CommunityToolkit.Diagnostics;
+using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Binding.Pipeline;
 
 namespace Vertical.CommandLine.Invocation;
@@ -21,6 +22,9 @@ public static class InvocationContextBuilder
         IEnumerable<string> args,
         CancellationToken cancellationToken = default)
     {
+        Guard.IsNotNull(rootCommand);
+        Guard.IsNotNull(args);
+        
         var bindingContext = BindingPipeline.CreateContext(rootCommand, args, cancellationToken);
         var invocationContext = bindingContext.GetInvocationContext();
 

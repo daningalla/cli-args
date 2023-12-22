@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
+using CommunityToolkit.Diagnostics;
 using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Configuration;
 using Vertical.CommandLine.Conversion;
+using Vertical.CommandLine.Invocation;
 
 namespace Vertical.CommandLine.Utilities;
 
@@ -17,8 +19,15 @@ public static class ConfigurationValidator
         public int GetHashCode(Exception obj) => obj.Message.GetHashCode();
     }
 
+    /// <summary>
+    /// Validates the given root command configuration.
+    /// </summary>
+    /// <param name="rootCommand">Root command</param>
+    /// <returns>A collection of exceptions that were collected.</returns>
     public static IReadOnlyCollection<Exception> Validate(RootCommand rootCommand)
     {
+        Guard.IsNotNull(rootCommand);
+        
         var exceptions = new HashSet<Exception>(new ExceptionComparer());
         var commands = new HashSet<Command>();
         var visitor = new PathVisitor<Command>(command => command.Commands, path =>
@@ -35,6 +44,23 @@ public static class ConfigurationValidator
         ValidateHandlerSignatures(commands, exceptions);
 
         return exceptions;
+    }
+
+    /// <summary>
+    /// Validates the given root command configuration, and throws an exception if any errors
+    /// are present.
+    /// </summary>
+    /// <param name="rootCommand">Root command</param>
+    public static void ThrowIfInvalidConfiguration(RootCommand rootCommand)
+    {
+        var exceptions = Validate(rootCommand);
+
+        if (exceptions.Count == 0)
+            return;
+
+        throw exceptions.Count == 1
+            ? exceptions.First()
+            : new AggregateException(exceptions);
     }
 
     private static void ValidateCommand(Command command, ICollection<Exception> exceptions)
@@ -86,7 +112,6 @@ public static class ConfigurationValidator
             binding => binding.Id,
             binding => binding,
             BindingNameComparer.Instance);
-        var modelBinderValueTypes = new HashSet<Type>();
         
         foreach (var command in path.Where(command => command.Handler is not null))
         {
@@ -94,16 +119,14 @@ public static class ConfigurationValidator
             var parameters = method.GetParameters();
             var unbindableParameters = new List<ParameterInfo>();
 
-            foreach (var modelBinder in command.ModelBinders)
-            {
-                modelBinderValueTypes.Add(modelBinder.ValueType);
-            }
-
             foreach (var parameter in parameters.Where(p => p.ParameterType != typeof(CancellationToken)))
             {
-                if (modelBinderValueTypes.Contains(parameter.ParameterType))
+                var modelBinder = command.ModelBinders.FirstOrDefault(binder => 
+                    binder.ValueType == parameter.ParameterType);
+
+                if (modelBinder != null)
                 {
-                    // Mapped by a model binder
+                    ValidateModelBinder(modelBinder, bindingDictionary.Keys, exceptions);
                     continue;
                 }
                 
@@ -131,6 +154,20 @@ public static class ConfigurationValidator
                 method,
                 unbindableParameters));
         }        
+    }
+
+    private static void ValidateModelBinder(
+        IModelBinder modelBinder,
+        IEnumerable<string> bindingIds,
+        ICollection<Exception> exceptions)
+    {
+        var argumentProvider = new ValidatingArgumentProvider(
+            new BindingServiceCollection(),
+            bindingIds,
+            modelBinder.ValueType,
+            exceptions);
+
+        modelBinder.BindInstanceBase(argumentProvider);
     }
 
     private static bool IsParameterCompatibleWithSymbolType(ParameterInfo parameter, CliBindingSymbol binding)

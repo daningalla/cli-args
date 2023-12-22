@@ -2,6 +2,10 @@
 
 namespace Vertical.CommandLine.Binding;
 
+/// <summary>
+/// Base class for model binders.
+/// </summary>
+/// <typeparam name="T">The value type being managed.</typeparam>
 public class ModelBinder<T> : IModelBinder
 {
     /// <inheritdoc />

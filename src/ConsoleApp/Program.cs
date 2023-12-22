@@ -2,7 +2,6 @@
 
 using ConsoleApp;
 using Vertical.CommandLine;
-using Vertical.CommandLine.Conversion;
 
 var rootCommand = Setup.BuildRootCommand();
 

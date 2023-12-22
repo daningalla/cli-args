@@ -17,13 +17,12 @@ internal static class BindingContextExtensions
             // Application arguments did not match a valid command
             throw CommandLineException.InvalidCommand(subject);
         }
-        
-        return new InvocationContext
-        {
-            Handler = context.InvocationSubject.Handler ?? throw ConfigurationExceptions.NoCommandHandler(subject),
-            ArgumentProvider = argumentProvider,
-            CancellationToken = context.CancellationToken,
-            CommandId = subject.Id
-        };
+
+        return new InvocationContext(
+            context.InvocationSubject.Handler ?? throw ConfigurationExceptions.NoCommandHandler(subject),
+            subject.Id,
+            argumentProvider,
+            context.CancellationToken
+            );
     }
 }

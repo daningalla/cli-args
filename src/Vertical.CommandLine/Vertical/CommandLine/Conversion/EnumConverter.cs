@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Conversion;
 
-public sealed class EnumConverter<T> : IValueConverter<T>
+internal sealed class EnumConverter<T> : IValueConverter<T>
 {
     /// <inheritdoc />
     public T Convert(ConversionContext<T> context)

@@ -1,11 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
+    <OutputType>library</OutputType>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace />
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>beta</VersionSuffix>
+    <IsPackable>true</IsPackable>
+    <PackageId>vertical-cli</PackageId>
+    <GenerateVersionAssemblyAttribute>false</GenerateVersionAssemblyAttribute>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   
   <ItemGroup>
@@ -15,7 +22,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="vertical-pipelines" Version="3.1.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="../Vertical.CommandLine.SourceGenerators/bin/Release/netstandard2.0/Vertical.CommandLine.SourceGenerators.dll"
+          PackagePath="analyzers/dotnet/cs"
+          Pack="true"
+          Visible="false" />
   </ItemGroup>
   
 </Project>

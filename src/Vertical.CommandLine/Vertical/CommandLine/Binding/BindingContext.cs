@@ -4,7 +4,7 @@ using Vertical.CommandLine.Syntax;
 
 namespace Vertical.CommandLine.Binding;
 
-public sealed class BindingContext : IBindingContext
+internal sealed class BindingContext : IBindingContext
 {
     private readonly List<Command> _invocationPath = new(4);
     private readonly List<IArgumentValueBinding> _argumentValueBindings = new(32);

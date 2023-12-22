@@ -3,25 +3,33 @@ using Microsoft.CodeAnalysis;
 
 namespace Vertical.CommandLine;
 
-internal static class HandlerSourceBuilder
+internal sealed class HandlerSourceBuilder
 {
-    public static string Build(
-        HandlerMetadata[] handlers,
+    private readonly OptimizationLevel _optimizationLevel;
+    private readonly bool _hasDiagnostics;
+
+    internal HandlerSourceBuilder(
         OptimizationLevel optimizationLevel,
         bool hasDiagnostics)
+    {
+        _optimizationLevel = optimizationLevel;
+        _hasDiagnostics = hasDiagnostics;
+    }
+    
+    public string Build(HandlerMetadata[] handlers)
     {
         var builder = new StringBuilder(25000);
         var cs = new CSharpFormatter(builder);
 
-        if (handlers.Length > 0 && !hasDiagnostics)
+        if (handlers.Length > 0)
         {
-            BuildSource(handlers, cs, optimizationLevel == OptimizationLevel.Debug);
+            BuildSource(handlers, cs);
         }
 
         return builder.ToString();
     }
 
-    private static void BuildSource(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
+    private void BuildSource(HandlerMetadata[] handlers, CSharpFormatter cs)
     {
         cs.WriteHeader();
         cs.WriteUsingStatements(
@@ -33,27 +41,27 @@ internal static class HandlerSourceBuilder
             "Vertical.CommandLine.Invocation",
             "Vertical.CommandLine.Utilities");
         cs.WriteNullableEnable();
-        WriteExtensions(handlers, cs, isDebug);
+        WriteExtensions(handlers, cs);
     }
 
-    private static void WriteExtensions(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
+    private void WriteExtensions(HandlerMetadata[] handlers, CSharpFormatter cs)
     {
         cs.AppendLine($"namespace {Constants.BaseNamespace}");
-        cs.AppendBlock(inner => WriteExtensionClass(handlers, inner, isDebug));
+        cs.AppendBlock(inner => WriteExtensionClass(handlers, inner));
     }
 
-    private static void WriteExtensionClass(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
+    private void WriteExtensionClass(HandlerMetadata[] handlers, CSharpFormatter cs)
     {
         cs.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         cs.AppendLine("public static class InvocationExtensions");
-        cs.AppendBlock(inner => WriteClassBody(handlers, inner, isDebug));
+        cs.AppendBlock(inner => WriteClassBody(handlers, inner));
     }
 
-    private static void WriteClassBody(HandlerMetadata[] handlers, CSharpFormatter cs, bool isDebug)
+    private void WriteClassBody(HandlerMetadata[] handlers, CSharpFormatter cs)
     {
         var namingManager = new NamingManager();
         
-        WriteInvokeExtensionMethod(handlers, cs, namingManager, isDebug);
+        WriteInvokeExtensionMethod(handlers, cs, namingManager);
         WriteCommandInvocationMethods(handlers, cs, namingManager);
     }
 
@@ -74,11 +82,10 @@ internal static class HandlerSourceBuilder
         });
     }
 
-    private static void WriteInvokeExtensionMethod(
+    private void WriteInvokeExtensionMethod(
         HandlerMetadata[] handlers,
         CSharpFormatter cs,
-        NamingManager namingManager,
-        bool isDebug)
+        NamingManager namingManager)
     {
         // Already checked there is only 1 distinct return type
         var template = handlers.First();
@@ -102,19 +109,26 @@ internal static class HandlerSourceBuilder
             }
             inner.AppendLine(")");
         });
-        cs.AppendBlock(inner => WriteExtensionMethodBody(handlers, inner, namingManager, isDebug));
+        cs.AppendBlock(inner => WriteExtensionMethodBody(handlers, inner, namingManager));
     }
 
-    private static void WriteExtensionMethodBody(
+    private void WriteExtensionMethodBody(
         HandlerMetadata[] handlers,
         CSharpFormatter cs,
-        NamingManager namingManager,
-        bool isDebug)
+        NamingManager namingManager)
     {
-        if (isDebug)
+        if (_hasDiagnostics)
+        {
+            cs.AppendLine("// The program didn't compile or had an invalid configuration...");
+            cs.Append("throw new InvalidOperationException(");
+            cs.Append("\"Handler sources were not generated, see warning(s) or error(s).\"");
+            return;
+        }
+        
+        if (_optimizationLevel == OptimizationLevel.Debug)
         {
             cs.AppendLine("// Removed when optimization is RELEASE");
-            cs.AppendLine("ConfigurationValidator.Validate(rootCommand);");
+            cs.AppendLine("ConfigurationValidator.ThrowIfInvalidConfiguration(rootCommand);");
             cs.AppendLine();
         }
         
@@ -125,7 +139,7 @@ internal static class HandlerSourceBuilder
         cs.AppendBlock(inner => WriteExtensionSwitchCases(handlers, inner, namingManager));
     }
 
-    private static void WriteExtensionSwitchCases(
+    private void WriteExtensionSwitchCases(
         IEnumerable<HandlerMetadata> handlers,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -142,7 +156,7 @@ internal static class HandlerSourceBuilder
         });
     }
 
-    private static void WriteExtensionSwitchCase(
+    private void WriteExtensionSwitchCase(
         HandlerMetadata handler,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -161,7 +175,7 @@ internal static class HandlerSourceBuilder
             cs.AppendLine("break;");
     }
 
-    private static void WriteCommandInvocationMethods(
+    private void WriteCommandInvocationMethods(
         IEnumerable<HandlerMetadata> handlers,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -173,7 +187,7 @@ internal static class HandlerSourceBuilder
         }
     }
 
-    private static void WriteCommandInvocationMethod(
+    private void WriteCommandInvocationMethod(
         HandlerMetadata handler,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -191,7 +205,7 @@ internal static class HandlerSourceBuilder
         cs.AppendBlock(inner => WriteCommandInvocationMethodBody(handler, inner));
     }
 
-    private static void WriteCommandInvocationMethodBody(HandlerMetadata handler, CSharpFormatter cs)
+    private void WriteCommandInvocationMethodBody(HandlerMetadata handler, CSharpFormatter cs)
     {
         foreach (var parameter in handler.Parameters)
         {

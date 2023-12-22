@@ -2,15 +2,27 @@
 
 internal sealed class InvocationContext : IInvocationContext
 {
+    internal InvocationContext(
+        Delegate handler,
+        string commandId,
+        IMappedArgumentProvider argumentProvider,
+        CancellationToken cancellationToken)
+    {
+        Handler = handler;
+        CommandId = commandId;
+        ArgumentProvider = argumentProvider;
+        CancellationToken = cancellationToken;
+    }
+    
     /// <inheritdoc />
-    public required Delegate Handler { get; init;  }
+    public Delegate Handler { get; }
 
     /// <inheritdoc />
-    public required string CommandId { get; init; }
+    public string CommandId { get; }
 
     /// <inheritdoc />
-    public required IMappedArgumentProvider ArgumentProvider { get; init; }
+    public IMappedArgumentProvider ArgumentProvider { get; }
 
     /// <inheritdoc />
-    public required CancellationToken CancellationToken { get; init; }
+    public CancellationToken CancellationToken { get; }
 }

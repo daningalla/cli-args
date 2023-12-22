@@ -10,10 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vertical.CommandLine.SourceGenerators\Vertical.CommandLine.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Vertical.CommandLine\Vertical.CommandLine.csproj" />
+    <ProjectReference Include="..\ConsoleApp.Library\ConsoleApp.Library.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="vertical-cli" Version="1.0.0-beta" />
   </ItemGroup>
 
 </Project>

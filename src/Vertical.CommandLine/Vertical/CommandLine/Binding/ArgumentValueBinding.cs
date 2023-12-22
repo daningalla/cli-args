@@ -2,7 +2,7 @@
 
 namespace Vertical.CommandLine.Binding;
 
-public class ArgumentValueBinding<T> : IArgumentValueBinding<T>
+internal sealed class ArgumentValueBinding<T> : IArgumentValueBinding<T>
 {
     internal ArgumentValueBinding(CliBindingSymbol<T> symbol, T[] argumentValues)
     {

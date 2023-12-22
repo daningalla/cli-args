@@ -1,4 +1,6 @@
-﻿namespace Vertical.CommandLine.Conversion;
+﻿using CommunityToolkit.Diagnostics;
+
+namespace Vertical.CommandLine.Conversion;
 
 /// <summary>
 /// Represents an object that converts string argument values using a delegate.
@@ -14,7 +16,7 @@ public sealed class DelegateConverter<T> : ValueConverter<T>
     /// <param name="converter">The function that implements conversion.</param>
     public DelegateConverter(Func<string, T> converter)
     {
-        ArgumentNullException.ThrowIfNull(converter);
+        Guard.IsNotNull(converter);
         _converter = converter;
     }
 

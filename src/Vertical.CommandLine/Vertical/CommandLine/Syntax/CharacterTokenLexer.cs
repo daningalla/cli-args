@@ -14,7 +14,6 @@ public static class CharacterTokenLexer
     /// <returns>Token list.</returns>
     public static CharacterToken[] GetTokens(string arg)
     {
-        ArgumentNullException.ThrowIfNull(arg);
         if (arg.Length == 0)
         {
             return Array.Empty<CharacterToken>();

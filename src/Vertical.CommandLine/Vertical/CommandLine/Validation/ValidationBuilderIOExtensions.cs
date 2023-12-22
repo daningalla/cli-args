@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Diagnostics;
 
 namespace Vertical.CommandLine.Validation;
 
@@ -15,6 +16,8 @@ public static class ValidationBuilderIOExtensions
         this ValidatorBuilder<FileInfo> builder,
         Func<FileInfo, string>? messageFormatter = null)
     {
+        Guard.IsNotNull(builder);
+        
         return builder.MustSatisfy(new ValidationRule<FileInfo>(
             context => context.AttemptedValue.Exists,
             messageFormatter ?? (file => $"File not found {file.FullName}.")));
@@ -31,6 +34,8 @@ public static class ValidationBuilderIOExtensions
         this ValidatorBuilder<DirectoryInfo> builder,
         Func<DirectoryInfo, string>? messageFormatter = null)
     {
+        Guard.IsNotNull(builder);
+        
         return builder.MustSatisfy(new ValidationRule<DirectoryInfo>(
             context => context.AttemptedValue.Exists,
             messageFormatter ?? (dir => $"Directory not found {dir.FullName}.")));

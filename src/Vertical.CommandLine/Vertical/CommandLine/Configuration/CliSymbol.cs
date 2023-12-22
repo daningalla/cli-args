@@ -12,8 +12,6 @@ public abstract class CliSymbol
     /// <param name="aliases">Optional aliases the symbol is also known as.</param>
     private protected CliSymbol(string id, string[]? aliases)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id);
-        
         Id = id;
         Aliases = aliases ?? Array.Empty<string>();
         Identifiers = new[] { Id }.Concat(Aliases).ToArray();

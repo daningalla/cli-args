@@ -189,7 +189,7 @@ public static class ValidationBuilderComparableExtensions
     /// <param name="messageFormatter">A function that formats the message to display when validation fails.</param>
     /// <returns>A reference to this instance.</returns>
     public static ValidatorBuilder<T> NotOneOf<T>(
-        this ValidatorBuilder<T> builder,
+        this ValidatorBuilder<T> builder, 
         IEnumerable<T> values,
         IEqualityComparer<T>? equalityComparer = null,
         Func<T, string>? messageFormatter = null)

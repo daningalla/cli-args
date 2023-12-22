@@ -65,12 +65,12 @@ internal static class NamingUtilities
         return true;
     }
 
-    public static bool IsValidPrefixedIdentifier(ReadOnlySpan<char> span) =>
+    internal static bool IsValidPrefixedIdentifier(ReadOnlySpan<char> span) =>
         IsValidPosixIdentifier(span) ||
         IsValidGnuIdentifier(span) ||
         IsValidMicrosoftIdentifier(span);
 
-    public static bool IsValidNonPrefixedIdentifier(ReadOnlySpan<char> span)
+    internal static bool IsValidNonPrefixedIdentifier(ReadOnlySpan<char> span)
     {
         if (span.Length == 0) return false;
 

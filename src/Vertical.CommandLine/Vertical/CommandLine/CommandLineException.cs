@@ -21,7 +21,7 @@ public class CommandLineException : Exception
     /// <param name="error">Error code.</param>
     /// <param name="message">Message that describes the exception.</param>
     /// <param name="innerException">The exception that causes this instance to be thrown.</param>
-    public CommandLineException(
+    private CommandLineException(
         CommandLineError error,
         string message, 
         Exception? innerException = null) : base(message, innerException)
@@ -161,7 +161,7 @@ public class CommandLineException : Exception
             (SymbolKey, symbol));
     }
 
-    public static Exception ValidationFailed<T>(ValidationContext<T> context)
+    internal static Exception ValidationFailed<T>(ValidationContext<T> context)
     {
         var constraint = context.Failures.FirstOrDefault();
         var messageClause = constraint?.MessageFormatter?.Invoke(context.AttemptedValue)
@@ -176,7 +176,7 @@ public class CommandLineException : Exception
             (AttemptedValueKey, context.AttemptedValue!));
     }
 
-    public static Exception InvalidCommand(Command subject)
+    internal static Exception InvalidCommand(Command subject)
     {
         var message = ReusableStringBuilder.Build(sb =>
         {

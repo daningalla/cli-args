@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Diagnostics;
 
 namespace Vertical.CommandLine.Syntax;
 
@@ -13,7 +14,7 @@ public readonly struct TokenizedInputSequence : IEquatable<TokenizedInputSequenc
     /// <param name="tokenArray">The tokens within the sequence.</param>
     public TokenizedInputSequence(CharacterToken[] tokenArray)
     {
-        ArgumentNullException.ThrowIfNull(tokenArray);
+        Guard.IsNotNull(tokenArray);
         
         TokenArray = tokenArray;
         Text = new string(tokenArray.Select(token => token.Value).ToArray());

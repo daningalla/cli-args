@@ -1,7 +1,12 @@
-﻿using Vertical.CommandLine;
+﻿using ConsoleApp.Library;
+using Vertical.CommandLine;
+using Vertical.CommandLine.Binding;
 using Vertical.CommandLine.Conversion;
 
 namespace ConsoleApp;
+
+[GeneratedBinding<PushArguments>]
+public partial class PushArgumentsBinder {}
 
 public static class Setup
 {
@@ -17,7 +22,9 @@ public static class Setup
                 new Option<string?>("--api-key", new[]{"-k"}),
                 new Option<string?>("--source", new[]{"-s"}, defaultProvider: () => "/usr/local/.nuget/packages"),
                 new Switch("--skip-duplicates"),
-                new Option<Point?>("--coordinates", converter: new DelegateConverter<Point?>(str => Point.Parse(str, null)))
+                new Option<Point?>("--coordinates", converter: new DelegateConverter<Point?>(str => Point.Parse(str, null))),
+                new Option<TimeSpan?>("--timeout"),
+                new Option<Int128>("--big")
             },
             Handler = async (PushArguments model, CancellationToken cancellationToken) =>
             {

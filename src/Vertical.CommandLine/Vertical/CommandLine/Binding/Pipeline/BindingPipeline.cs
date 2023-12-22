@@ -22,9 +22,6 @@ public static class BindingPipeline
         IEnumerable<string> args,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(rootCommand);
-        ArgumentNullException.ThrowIfNull(args);
-
         return CreateContext(rootCommand, args, DefaultMiddlewareFactory(), cancellationToken);
     }
 

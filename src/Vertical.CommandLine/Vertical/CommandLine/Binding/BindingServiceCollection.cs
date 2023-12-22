@@ -2,21 +2,24 @@
 
 namespace Vertical.CommandLine.Binding;
 
+/// <summary>
+/// Simples service collection implementation.
+/// </summary>
 public sealed class BindingServiceCollection
 {
     private readonly Dictionary<Type, IBindingService> _services = new();
 
+    internal BindingServiceCollection()
+    {
+    }
+
     public void Add(IBindingService service)
     {
-        ArgumentNullException.ThrowIfNull(service);
-        
         _services[service.ServiceType] = service;
     }
 
     public void AddRange(IEnumerable<IBindingService> services)
     {
-        ArgumentNullException.ThrowIfNull(services);
-
         foreach (var service in services)
         {
             Add(service);

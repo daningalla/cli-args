@@ -1,4 +1,6 @@
-﻿namespace Vertical.CommandLine.Binding;
+﻿using CommunityToolkit.Diagnostics;
+
+namespace Vertical.CommandLine.Binding;
 
 /// <summary>
 /// Specifies the option, switch, or argument id to bind to.
@@ -14,6 +16,7 @@ public sealed class BindingAttribute : Attribute
     /// </param>
     public BindingAttribute(string bindingId)
     {
+        Guard.IsNotNullOrWhiteSpace(bindingId);
         BindingId = bindingId;
     }
 

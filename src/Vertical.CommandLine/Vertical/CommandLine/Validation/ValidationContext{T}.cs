@@ -7,7 +7,7 @@ namespace Vertical.CommandLine.Validation;
 /// Represents a context that manages a validation operation.
 /// </summary>
 /// <typeparam name="T">Value type.</typeparam>
-public sealed class ValidationContext<T> : IValidationContext<T>
+internal sealed class ValidationContext<T> : IValidationContext<T>
 {
     internal ValidationContext(
         CliBindingSymbol<T> symbol,
