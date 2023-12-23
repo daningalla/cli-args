@@ -7,7 +7,6 @@ using Vertical.CommandLine.Invocation;
 
 namespace Vertical.CommandLine.Utilities;
 
-#if DEBUG
 public static class ConfigurationValidator
 {
     private sealed class ExceptionComparer : IEqualityComparer<Exception>
@@ -286,4 +285,3 @@ public static class ConfigurationValidator
         }
     }
 }
-#endif

@@ -15,7 +15,7 @@ internal static class BindingContextExtensions
         if (subject.Handler == null)
         {
             // Application arguments did not match a valid command
-            throw CommandLineException.InvalidCommand(subject);
+            throw new CommandLineInvocationException(subject);
         }
 
         return new InvocationContext(

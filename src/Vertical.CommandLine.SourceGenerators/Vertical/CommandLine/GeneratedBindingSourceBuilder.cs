@@ -77,34 +77,37 @@ internal static class GeneratedBindingSourceBuilder
             });
         }
         cs.Append(")");
-
-        var properties = typeSymbol
-            .GetMembers()
-            .Where(member => member is IPropertySymbol { IsReadOnly: false } && handledParameters.Add(member.Name))
-            .Cast<IPropertySymbol>()
-            .Select(property => new PropertyMetadata(property))
-            .ToArray();
-
-        if (properties.Length == 0)
+        cs.AppendBlock("{", "};", inner =>
         {
-            cs.AppendLine(";");
-        }
-        else
-        {
-            cs.AppendLine();
-            cs.AppendBlock("{", "};", inner =>
-            {
-                foreach (var (property, i) in properties.Select((p, i) => (p, i)))
-                {
-                    if (i > 0) inner.AppendLine(",");
-                    inner.Append($"{property.Name} = ");
-                    inner.Append($"argumentProvider.{Utilities.FormatArgumentProviderCall(property)}");
-                }
-            });
-        }
-
+            WritePropertyAssignments(inner, typeSymbol, handledParameters);
+        });
+        
         cs.AppendLine();
-        cs.AppendLine($"return instance;");
+        cs.AppendLine("return instance;");
+    }
+
+    private static void WritePropertyAssignments(
+        CSharpFormatter cs,
+        ITypeSymbol typeSymbol,
+        ISet<string> boundNames)
+    {
+        var properties = new List<PropertyMetadata>(32);
+        
+        for (var type = typeSymbol; type != null; type = type.BaseType)
+        {
+            properties.AddRange(type
+                .GetMembers()
+                .Where(member => member is IPropertySymbol { IsReadOnly: false } && boundNames.Add(member.Name))
+                .Cast<IPropertySymbol>()
+                .Select(property => new PropertyMetadata(property)));
+        }
+        
+        foreach (var (property, i) in properties.Select((p, i) => (p, i)))
+        {
+            if (i > 0) cs.AppendLine(",");
+            cs.Append($"{property.Name} = ");
+            cs.Append($"argumentProvider.{Utilities.FormatArgumentProviderCall(property)}");
+        }
     }
 
     private static bool IsRecordCopyConstructor(IMethodSymbol constructor)

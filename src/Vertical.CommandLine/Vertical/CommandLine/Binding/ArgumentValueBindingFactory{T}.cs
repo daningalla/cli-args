@@ -57,7 +57,7 @@ internal sealed class ArgumentValueBindingFactory<T> : IArgumentValueBindingFact
         }
         catch (Exception exception)
         {
-            throw CommandLineException.ConversionFailed(symbol, value, exception);
+            throw new CommandLineConversionException(symbol, value, exception);
         }
     }
     
@@ -68,7 +68,7 @@ internal sealed class ArgumentValueBindingFactory<T> : IArgumentValueBindingFact
 
         if (context.IsValid)
             return;
-        
-        throw CommandLineException.ValidationFailed(context);
+
+        throw CommandLineValidationException.Create(context);
     }
 }

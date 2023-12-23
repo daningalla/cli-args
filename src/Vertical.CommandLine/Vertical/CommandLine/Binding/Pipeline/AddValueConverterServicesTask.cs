@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public sealed class AddValueConverterServicesTask : IBindingTask
+internal sealed class AddValueConverterServicesTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

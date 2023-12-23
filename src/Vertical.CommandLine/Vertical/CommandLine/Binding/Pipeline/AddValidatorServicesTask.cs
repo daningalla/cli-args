@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public sealed class AddValidatorServicesTask : IBindingTask
+internal sealed class AddValidatorServicesTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

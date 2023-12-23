@@ -3,7 +3,7 @@ using Vertical.CommandLine.Syntax;
 
 namespace Vertical.CommandLine.Binding.Pipeline;
 
-public sealed class AddArgumentValueBindingsTask : IBindingTask
+internal sealed class AddArgumentValueBindingsTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

@@ -374,9 +374,13 @@ The library will throw exceptions during validation in `DEBUG` mode if the root 
 
 When a user of your application makes an error, the library will throw a `CommandLineException`. The application can catch the exception and display the message to the user. Examples of invalid CLI input caught by the library are as follows:
 
-- An option or argument's arity was violated.
-- A sub-command was not matched when the root command does not have a handler.
-- A value fails conversion or validation.
+- An option or argument's arity was violated (`CommandLineArityException`).
+- An argument was not provided for an option (`CommandLineOptionException`).
+- A sub-command was not matched when the root command does not have a handler (`CommandLineInvocationException`).
+- A value fails conversion (`CommandLineConversionException`).
+- A converted value fails validation (`CommandLineValidationException`).
+- A value is generally invalid (`CommandLineArgumentException`).
+
 
 
 ## Testing

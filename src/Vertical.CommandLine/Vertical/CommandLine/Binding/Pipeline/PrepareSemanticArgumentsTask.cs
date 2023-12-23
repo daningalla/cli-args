@@ -2,7 +2,7 @@
 
 namespace Vertical.CommandLine.Binding.Pipeline;
 
-public class PrepareSemanticArgumentsTask : IBindingTask
+internal class PrepareSemanticArgumentsTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

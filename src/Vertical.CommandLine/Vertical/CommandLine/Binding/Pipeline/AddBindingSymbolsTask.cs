@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public class AddBindingSymbolsTask : IBindingTask
+internal class AddBindingSymbolsTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

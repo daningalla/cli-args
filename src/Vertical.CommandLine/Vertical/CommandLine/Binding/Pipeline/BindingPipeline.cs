@@ -1,7 +1,8 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public static class BindingPipeline
+internal static class BindingPipeline
 {
+    // ReSharper disable once MemberCanBePrivate.Global
     internal static readonly Action<IBindingContext> TerminalTask = _ => { };
     
     private static readonly Func<IBindingTask[]> DefaultMiddlewareFactory = () => new IBindingTask[]
@@ -17,7 +18,7 @@ public static class BindingPipeline
         new PostValidateContextTask()
     };
 
-    public static IBindingContext CreateContext(
+    internal static IBindingContext CreateContext(
         RootCommand rootCommand,
         IEnumerable<string> args,
         CancellationToken cancellationToken)
@@ -25,24 +26,13 @@ public static class BindingPipeline
         return CreateContext(rootCommand, args, DefaultMiddlewareFactory(), cancellationToken);
     }
 
-    public static IBindingContext CreateContext(
+    private static IBindingContext CreateContext(
         RootCommand rootCommand,
         IEnumerable<string> args,
         IEnumerable<IBindingTask> middlewares,
         CancellationToken cancellationToken)
     {
         var context = new BindingContext(rootCommand, args, cancellationToken);
-        var pipeline = BuildPipeline(middlewares);
-
-        pipeline(context);
-
-        return context;
-    }
-
-    public static IBindingContext Build(
-        IEnumerable<IBindingTask> middlewares,
-        IBindingContext context)
-    {
         var pipeline = BuildPipeline(middlewares);
 
         pipeline(context);

@@ -21,10 +21,7 @@ internal sealed class HandlerSourceBuilder
         var builder = new StringBuilder(25000);
         var cs = new CSharpFormatter(builder);
 
-        if (handlers.Length > 0)
-        {
-            BuildSource(handlers, cs);
-        }
+        BuildSource(handlers, cs);
 
         return builder.ToString();
     }
@@ -87,6 +84,16 @@ internal sealed class HandlerSourceBuilder
         CSharpFormatter cs,
         NamingManager namingManager)
     {
+        if (_hasDiagnostics)
+        {
+            cs.AppendLine("public static void Invoke(IEnumerable<string> args)");
+            cs.AppendBlock(inner => inner.AppendLine("throw new NotImplementedException();"));
+            cs.AppendLine();
+            cs.AppendLine("public static async Task InvokeAsync(IEnumerable<string> args, CancellationToken cancellationToken = default)");
+            cs.AppendBlock(inner => inner.AppendLine("throw new NotImplementedException();"));
+            return;
+        }
+        
         // Already checked there is only 1 distinct return type
         var template = handlers.First();
 
@@ -156,14 +163,13 @@ internal sealed class HandlerSourceBuilder
         });
     }
 
-    private void WriteExtensionSwitchCase(
+    private static void WriteExtensionSwitchCase(
         HandlerMetadata handler,
         CSharpFormatter cs,
         NamingManager namingManager)
     {
         if (handler.ReturnsValue)
             cs.Append("return ");
-        
 
         var handlerIdentifier = namingManager.GetHandlerClrCompliantName(handler);
         
@@ -175,7 +181,7 @@ internal sealed class HandlerSourceBuilder
             cs.AppendLine("break;");
     }
 
-    private void WriteCommandInvocationMethods(
+    private static void WriteCommandInvocationMethods(
         IEnumerable<HandlerMetadata> handlers,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -187,7 +193,7 @@ internal sealed class HandlerSourceBuilder
         }
     }
 
-    private void WriteCommandInvocationMethod(
+    private static void WriteCommandInvocationMethod(
         HandlerMetadata handler,
         CSharpFormatter cs,
         NamingManager namingManager)
@@ -205,7 +211,7 @@ internal sealed class HandlerSourceBuilder
         cs.AppendBlock(inner => WriteCommandInvocationMethodBody(handler, inner));
     }
 
-    private void WriteCommandInvocationMethodBody(HandlerMetadata handler, CSharpFormatter cs)
+    private static void WriteCommandInvocationMethodBody(HandlerMetadata handler, CSharpFormatter cs)
     {
         foreach (var parameter in handler.Parameters)
         {
@@ -225,19 +231,26 @@ internal sealed class HandlerSourceBuilder
             .Parameters
             .Select(param => param.Type)
             .ToList();
-        var isFunction = symbols.Any();
 
         if (handler.ReturnsValue || handler.IsAsyncTask)
         {
             symbols.Add(handler.ReturnType);
         }
         
+        var hasDelegateParameters = symbols.Any();
+        var delegateOpenCloseTokens = hasDelegateParameters
+            ? "<>"
+            : "  ";
+
         cs.Append("var callSite = (");
-        cs.Append(isFunction ? "Func<" : "Action");
+        cs.Append(handler.ReturnsValue || handler.IsAsyncTask  ? "Func" : "Action");
+        cs.Append(delegateOpenCloseTokens[0]);
         
         WriteIndentedCsv(symbols.Select(symbol => symbol.ToDisplayString()).ToArray(), cs);
-        cs.Append(isFunction ? ">)" : ")");
-        cs.AppendLine("context.Handler!;");
+        
+        cs.Append(delegateOpenCloseTokens[1]);
+        cs.Append(')');
+        cs.AppendLine(" context.Handler!;");
         cs.AppendLine();
 
         if (handler.ReturnsValue)

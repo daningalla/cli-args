@@ -22,13 +22,13 @@ public sealed class HandlerMetadata
     
     public Guid Id { get; } = Guid.NewGuid();
 
-    public string ReturnTypeDeclaration { get; set; }
+    public string ReturnTypeDeclaration { get; }
 
-    public bool ReturnsValue { get; set; }
+    public bool ReturnsValue { get; }
 
-    public bool IsAsyncTask { get; set; }
+    public bool IsAsyncTask { get; }
 
-    public ITypeSymbol ReturnType { get; set; }
+    public ITypeSymbol ReturnType { get; }
 
     public string CommandId { get; }
 
@@ -45,7 +45,15 @@ public sealed class HandlerMetadata
 
     private static bool GetReturnsValue(ISymbol returnTypeSymbol)
     {
-        return returnTypeSymbol.ToDisplayString() is not "System.Void" and not "System.Threading.Tasks.Task";
+        switch (returnTypeSymbol.ToDisplayString())
+        {
+            case "void":
+                return false;
+            case "System.Threading.Tasks.Task":
+                return false;
+            default:
+                return true;
+        }
     }
 
     private static string GetReturnTypeDeclaration(ITypeSymbol symbol)

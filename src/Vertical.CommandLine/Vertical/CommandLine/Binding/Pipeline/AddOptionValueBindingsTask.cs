@@ -3,7 +3,7 @@ using Vertical.CommandLine.Syntax;
 
 namespace Vertical.CommandLine.Binding.Pipeline;
 
-public class AddOptionValueBindingsTask : IBindingTask
+internal class AddOptionValueBindingsTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)
@@ -14,8 +14,7 @@ public class AddOptionValueBindingsTask : IBindingTask
 
     private static void InvokeCore(IBindingContext context)
     {
-        var argumentCollection = context.GetSemanticArguments();
-
+        var argumentCollection = context.GetSemanticArguments(); 
         var bindingSymbols = context.GetBindingSymbols();
         
         while (bindingSymbols.TryRemoveOptionBinding(out var symbol))
@@ -55,7 +54,7 @@ public class AddOptionValueBindingsTask : IBindingTask
     {
         if (argumentValues.Any(str => str is null))
         {
-            throw CommandLineException.OptionMissingOperand(symbol);
+            throw new CommandLineOptionException(symbol);
         }
 
         context.AddBindingContext(symbol, argumentValues.Cast<string>());

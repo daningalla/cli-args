@@ -9,14 +9,12 @@ internal static class CliSymbolExtensions
 
     internal static void ValidateArity(this CliBindingSymbol symbol, int count, Func<IEnumerable<string?>> args)
     {
-        if (count < symbol.Arity.MinCount)
-        {
-            throw CommandLineException.MinimumArityNotMet(symbol, args());
-        }
+        if (count >= symbol.Arity.MinCount)
+            return;
 
-        if (count > symbol.Arity.MaxCount)
-        {
-            throw CommandLineException.MaximumArityExceeded(symbol, args());
-        }
+        if (count <= (symbol.Arity.MaxCount ?? int.MaxValue))
+            return;
+        
+        throw new CommandLineArityException(symbol, args());
     }
 }

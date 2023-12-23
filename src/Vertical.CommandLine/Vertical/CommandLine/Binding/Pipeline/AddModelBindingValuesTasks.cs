@@ -2,7 +2,7 @@
 
 namespace Vertical.CommandLine.Binding.Pipeline;
 
-public sealed class AddModelBindingValuesTasks : IBindingTask
+internal sealed class AddModelBindingValuesTasks : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)

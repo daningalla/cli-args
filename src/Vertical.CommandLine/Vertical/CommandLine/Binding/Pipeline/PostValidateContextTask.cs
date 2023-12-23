@@ -1,6 +1,6 @@
 ﻿namespace Vertical.CommandLine.Binding.Pipeline;
 
-public class PostValidateContextTask : IBindingTask
+internal class PostValidateContextTask : IBindingTask
 {
     /// <inheritdoc />
     public void Invoke(IBindingContext context, Action<IBindingContext> next)
@@ -18,6 +18,6 @@ public class PostValidateContextTask : IBindingTask
 
         var first = remainingArguments.First();
 
-        throw CommandLineException.InvalidArgument(first);
+        throw new CommandLineArgumentException(first);
     }
 }
